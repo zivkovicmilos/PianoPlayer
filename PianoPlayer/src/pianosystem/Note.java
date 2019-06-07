@@ -8,9 +8,20 @@ public class Note extends MusicSymbol {
     private Color lightGreen = new Color(183,215,160);
     private Color lightRed = Color.RED;
 
+    private Note next;
+    private Note prev;
+
     private Pitch p;
     private int octave;
     private boolean sharp;
+
+    public void addNext(Note n) {
+        next = n;
+    }
+
+    public void addPrev(Note n) {
+        prev = n;
+    }
 
     public Note(Duration d, int octave, boolean sharp, Pitch p) {
         super(d);
@@ -43,6 +54,22 @@ public class Note extends MusicSymbol {
         } else {
             return lightGreen;
         }
+    }
+
+    public static Note.Pitch getPitch(char c) {
+        Pitch ret = null;
+        switch (c) {
+            case 'C': ret = Note.Pitch.C; break;
+            case 'D': ret = Note.Pitch.D; break;
+            case 'E': ret = Note.Pitch.E; break;
+            case 'F': ret = Note.Pitch.F; break;
+            case 'G': ret = Note.Pitch.G; break;
+            case 'A': ret = Note.Pitch.A; break;
+            case 'B': ret = Note.Pitch.B; break;
+            default:
+                System.out.println("Bad pitch"); break;
+        };
+        return ret;
     }
 
 }

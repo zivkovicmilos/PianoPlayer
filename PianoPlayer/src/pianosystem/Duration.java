@@ -8,6 +8,15 @@ public class Duration {
         this.denominator = denominator;
     }
 
+    public Duration() {
+        numerator = denominator = 0;
+    }
+
+    public void changeDuration(int num, int denom) {
+        numerator = num;
+        denominator = denom;
+    }
+
     @Override
     public String toString() {
         return numerator +"/"+denominator;
