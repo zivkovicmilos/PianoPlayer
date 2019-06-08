@@ -59,9 +59,10 @@ public class Main extends JFrame {
     }
 
     private void addComponents() {
-        ControlBoard cb = new ControlBoard();
-
-        add(cb, BorderLayout.CENTER);
+        //ControlBoard cb = new ControlBoard();
+        Piano p = new Piano();
+        add(p);
+        //add(cb, BorderLayout.CENTER);
     }
 
     public static void main(String[] args) throws FileNotFoundException {

@@ -29,12 +29,10 @@ public class ControlBoard extends JPanel {
 
     public void addButtons() {
         JPanel btns = new JPanel();
-        play = new JButton();
-        play.setSize(10, 10);
-        pause = new JButton();
-        pause.setSize(10, 10);
-        stop = new JButton();
-        stop.setSize(10, 10);
+        play = new JButton("Play");
+        pause = new JButton("Pause");
+        stop = new JButton("Stop");
+        /*
         try {
             ImageIcon img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\play.png");
             ImageIcon icon = new ImageIcon(img.getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
@@ -47,6 +45,8 @@ public class ControlBoard extends JPanel {
             System.out.println(ex);
             System.out.println("greska");
         }
+
+         */
 
         btns.add(play);
         btns.add(pause);
