@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import javax.swing.*;
 
 public class Main extends JFrame {
+    private Piano p;
     private About about = new About(this);
     private class WindowListener extends WindowAdapter {
         @Override
@@ -26,11 +27,31 @@ public class Main extends JFrame {
         setVisible(true);
     }
 
+    private class MyDispatcher implements KeyEventDispatcher {
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent e) {
+            if (e.getID() == KeyEvent.KEY_PRESSED) {
+                //char played = e.getKeyChar();
+                //System.out.println(played);
+                //p.grabFromKeyboard(played);
+            } else if (e.getID() == KeyEvent.KEY_RELEASED) {
+                char played = e.getKeyChar();
+                System.out.println(played);
+                p.grabFromKeyboard(played);
+                System.out.println("released");
+            } else if (e.getID() == KeyEvent.KEY_TYPED) {
+                System.out.println("typed");
+            }
+            return false;
+        }
+    }
+
     private void addMenus() {
         JMenuBar mb = new JMenuBar();
         JMenu file = new JMenu("File");
         JMenu view = new JMenu("View");
         JMenu help = new JMenu("Help");
+        JCheckBoxMenuItem showNotes = new JCheckBoxMenuItem("Show Notes", false);
 
         mb.add(file);
         mb.add(view);
@@ -47,7 +68,13 @@ public class Main extends JFrame {
         file.add(exit);
 
         // ===== View ==== //
-
+        view.add(showNotes);
+        showNotes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                p.displayNotes(showNotes.getState());
+            }
+        });
         // ===== HELP ==== //
         JMenuItem docs = new JMenuItem("Documentation");
         JMenuItem about = new JMenuItem("About");
@@ -60,14 +87,17 @@ public class Main extends JFrame {
 
     private void addComponents() {
         //ControlBoard cb = new ControlBoard();
-        Piano p = new Piano();
+        p = new Piano();
+        //addKeyListener(new KeyListener());
         add(p);
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventDispatcher(new MyDispatcher());
         //add(cb, BorderLayout.CENTER);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
         Reader r = new Reader();
-        r.initMaps(new File("data\\map.csv"));
+        Reader.initMaps(new File("data\\map.csv"));
         new Main();
 
     }

@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Reader {
-    private Map<Character, String> noteMap = new HashMap<>(); // key -> note
-    private Map<String, Integer> midiMap = new HashMap<>(); // note -> midiNum
+    private static Map<Character, String> noteMap = new HashMap<>(); // key -> note
+    private static Map<String, Integer> midiMap = new HashMap<>(); // note -> midiNum
 
     /**
      * Reads the specified .csv file and saves the mappings of key -> note as well as note -> midiNum
@@ -17,7 +17,7 @@ public class Reader {
      * @return Map of Key -> Note pairs
      * @throws FileNotFoundException
      */
-    public void initMaps(File file) throws FileNotFoundException {
+    public static void initMaps(File file) throws FileNotFoundException {
 
         Pattern pattern = Pattern.compile("^([^,]*),([^,]*),([^,]*)$");
         BufferedReader br = new BufferedReader(new FileReader(file));
@@ -39,11 +39,51 @@ public class Reader {
         } catch(IOException io) {}
     }
 
-    public Map<Character, String> getNoteMap() {
+
+    public static Map<Integer, String> initKeyMaps(File file) {
+        Map<Integer, String> map = new HashMap<Integer, String>();
+        Pattern pattern = Pattern.compile("^(.*),(.*)$");
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(file));
+        } catch(FileNotFoundException e) {
+
+            System.out.println("NOT FOUND");
+        }
+
+        Stream<String> mappings = br.lines();
+
+
+        mappings.forEach(mapping -> {
+            Matcher matcher = pattern.matcher(mapping);
+
+            if(matcher.matches()) {
+                int indx = Integer.parseInt(matcher.group(1));
+                String desc = matcher.group(2);
+                map.put(indx, desc);
+            }
+        });
+        System.out.println(map.size());
+        try {
+            br.close();
+        } catch(IOException io) {}
+        return map;
+    }
+
+    public static char getChar(String s) {
+        for(Map.Entry<Character, String> entry : noteMap.entrySet()) {
+            if (s.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return '0';
+    }
+
+    public static Map<Character, String> getNoteMap() {
         return noteMap;
     }
 
-    public Map<String, Integer> getMidiMap() {
+    public static Map<String, Integer> getMidiMap() {
         return midiMap;
     }
 
