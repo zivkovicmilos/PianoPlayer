@@ -7,13 +7,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Map;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
 
 public class Piano extends JLayeredPane {
-    private MidiChannel channel;
+    private static MidiChannel channel;
     ArrayList<BlackKey> blackKeys = new ArrayList<BlackKey>();
     ArrayList<WhiteKey> whiteKeys = new ArrayList<WhiteKey>();
 
@@ -33,34 +34,40 @@ public class Piano extends JLayeredPane {
         }
     }
 
-    public void grabFromKeyboard(char played) {
+    public void grabFromKeyboard(char played, long length) {
+        System.out.println("PLAYING "+played+ " AT "+length);
         for(BlackKey b : blackKeys) {
             if(played == b.getChar()) {
-                play(b.note());
+                b.setBackground(Color.RED);
+                play(b.note(), length);
+                b.setBackground(Color.BLACK);
                 return;
             }
         }
 
         for(WhiteKey w : whiteKeys) {
             if(played == w.getChar()) {
-                play(w.note());
+                w.setBackground(Color.RED);
+                play(w.note(), length);
                 return;
             }
         }
     }
 
-    private void play(int note) {
-        channel.noteOn(note, 50);
+    public static void play(int note, long length) {
+        System.out.println("PLAYING " + note);
+        if (note > 0) channel.noteOn(note, 50);
         try {
-            Thread.sleep(150); // TODO change for notes played together, use a collection to remember what is pressed
+            Thread.sleep(length); // TODO change for notes played together, use a collection to remember what is pressed
         } catch(InterruptedException e){}
-        channel.noteOff(note, 50);
+        if (note > 0) channel.noteOff(note, 50);
     }
 
     private class MouseListener extends MouseAdapter {
         public void mousePressed(MouseEvent me) {
             Key k = (Key) me.getSource();
-            play(k.note());
+            k.setBackground(Color.RED);
+            play(k.note(), 180);
         }
     }
 

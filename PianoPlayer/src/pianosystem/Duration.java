@@ -25,4 +25,8 @@ public class Duration {
     public boolean isQuarter() {
         return denominator == 4;
     }
+
+    public long toMilis() {
+        return denominator==4? 150:75;
+    }
 }

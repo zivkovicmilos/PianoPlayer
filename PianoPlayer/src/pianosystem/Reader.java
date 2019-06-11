@@ -93,7 +93,7 @@ public class Reader {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
 
-        System.out.println("========== MIDi MAP ==========");
+        System.out.println("========== MIDI MAP ==========");
         for(Map.Entry<String, Integer> entry : midiMap.entrySet()) {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
         }

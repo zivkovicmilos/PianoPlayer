@@ -16,8 +16,8 @@ public class BlackKey extends JButton implements Key {
         num = indx;
         midiNote = 37 + 2 * indx + (indx + 3) / 5 + indx / 5;
         setBackground(Color.BLACK);
-        setLocation(indx * 20 + 12, 0);
-        setSize(16, 80);
+        setLocation(indx * 23 + 12, 0);
+        setSize(19, 80);
 
         desc = Reader.initKeyMaps(new File("data\\blackKeyMap.txt"));
     }
@@ -55,4 +55,5 @@ public class BlackKey extends JButton implements Key {
     public char getChar() {
         return Reader.getChar(desc.get(num));
     }
+
 }

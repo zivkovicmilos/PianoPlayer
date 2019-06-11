@@ -17,8 +17,8 @@ public class WhiteKey extends JButton implements Key {
         num = indx;
         midiNote = 36 + 2 * indx - (indx + 4) / 7 - indx / 7;
         setBackground(Color.WHITE);
-        setLocation(indx * 20, 0);
-        setSize(20, 120);
+        setLocation(indx * 23, 0);
+        setSize(23, 120);
 
         desc = Reader.initKeyMaps(new File("data\\whiteKeyMap.txt"));
 

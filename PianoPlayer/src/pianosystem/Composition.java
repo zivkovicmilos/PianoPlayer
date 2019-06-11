@@ -13,24 +13,28 @@ import java.util.stream.Stream;
 
 public class Composition {
 
-    static private class Pair {
+    static public class Pair {
         MusicSymbol ms;
-        char txt;
+        //char txt;
         Integer pos;
-        public Pair(MusicSymbol ms, Integer pos, char txt) {
+        public Pair(MusicSymbol ms, Integer pos/*, char txt*/) {
             this.ms = ms;
             this.pos = pos;
-            this.txt = txt;
+            //this.txt = txt;
+        }
+
+        public MusicSymbol getMs() {
+            return ms;
         }
 
         public String toString() {
-            return ms + " "+txt+" at " + pos;
+            return ms + " at " + pos;
         }
     }
 
     private static int base = 0;
     private static int oldBase = 0;
-    ArrayList<Pair> symbolMap = new ArrayList<Pair>();
+    private static ArrayList<Pair> symbolMap = new ArrayList<Pair>();
 
     public void addSymbols(Map<Character, String> noteMap, File file) {
         ArrayList<String> regexQueries = new ArrayList<String>();
@@ -70,11 +74,10 @@ public class Composition {
                         num = oldBase + pos;
                         first = false;
                     } else {
-                        num += oldLength + pos;
-                        num += (i == 2 ? -1 : 0);
+                        num = pos;
+                        //num += (i == 2 ? -1 : 0);
                     }
 
-                    oldLength = matcher.group().length();
                     int length = workingStr.length();
                     if(length > 1) {
                         char[] charArr = workingStr.toCharArray();
@@ -103,7 +106,7 @@ public class Composition {
                                 // The symbol is a pause within [ ]
                                 temp = new Pause(d);
 
-                                symbolMap.add(new Pair(temp, offset + num, note));
+                                symbolMap.add(new Pair(temp, offset + num));
                                 offset++;
                                 continue;
                             }
@@ -120,7 +123,7 @@ public class Composition {
 
                             temp = new Note(d, octave, isSharp, pitch);
 
-                            symbolMap.add(new Pair(temp, offset + num, note));
+                            symbolMap.add(new Pair(temp, offset + num));
 
                             if (connected && (oldNote != null)) {
                                 oldNote.addNext((Note)temp);
@@ -159,7 +162,7 @@ public class Composition {
                             temp = new Note(new Duration(1, 4), octave, isSharp, pitch);
                         }
 
-                        symbolMap.add(new Pair(temp, num, workingStr.charAt(0)));
+                        symbolMap.add(new Pair(temp, num/*, workingStr.charAt(0)*/));
                     }
                 }
             }
@@ -173,4 +176,8 @@ public class Composition {
             System.out.println(p);
         }
        }
+
+    public static ArrayList<Pair> getSymbolMap() {
+        return symbolMap;
     }
+}

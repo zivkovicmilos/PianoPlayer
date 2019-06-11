@@ -19,5 +19,7 @@ public abstract class MusicSymbol {
         return getDesc();
     }
 
+
+
     public abstract Color getColor();
 }
