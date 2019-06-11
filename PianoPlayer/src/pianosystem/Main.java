@@ -14,7 +14,7 @@ public class Main extends JFrame {
     private Player player;
     private static Composition c;
     private About about = new About(this);
-    private final Set<Character> pressed = new HashSet<Character>();
+    private static Set<Character> pressed = new HashSet<Character>();
 
     private class WindowListener extends WindowAdapter {
         @Override
@@ -50,8 +50,8 @@ public class Main extends JFrame {
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
             if (e.getID() == KeyEvent.KEY_PRESSED) {
-
                 pressed.add(e.getKeyChar());
+                p.setColor(e.getKeyChar());
 
                 //char played = e.getKeyChar();
                 //System.out.println(played);
@@ -69,11 +69,12 @@ public class Main extends JFrame {
 
                     System.out.println(e.getKeyChar());
                     pressed.remove(c);
-                }
 
-                for(Character c: pressed) {
-                    pressed.remove(c);
                 }
+                p.resetColor();
+                //for(Character c: pressed) {
+                 //   pressed.remove(c);
+                //}
                 //pressed.remove(e.getKeyChar());
 
                 //p.grabFromKeyboard(played);

@@ -34,6 +34,32 @@ public class Piano extends JLayeredPane {
         }
     }
 
+    public void resetColor() {
+        for(BlackKey b : blackKeys) {
+            b.setBackground(Color.BLACK);
+        }
+
+        for(WhiteKey w : whiteKeys) {
+            w.setBackground(Color.WHITE);
+        }
+    }
+
+    public void setColor(char played) {
+        for(BlackKey b : blackKeys) {
+            if(played == b.getChar()) {
+                b.setBackground(Color.RED);
+                return;
+            }
+        }
+
+        for(WhiteKey w : whiteKeys) {
+            if(played == w.getChar()) {
+                w.setBackground(Color.RED);
+                return;
+            }
+        }
+    }
+
     public void grabFromKeyboard(char played, long length) {
         System.out.println("PLAYING "+played+ " AT "+length);
         for(BlackKey b : blackKeys) {
