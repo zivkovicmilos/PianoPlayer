@@ -30,6 +30,10 @@ public class Note extends MusicSymbol {
         this.p = p;
     }
 
+    public boolean hasNext() {
+        return next != null;
+    }
+
     @Override
     public String getDesc() {
         boolean uppcase = false;

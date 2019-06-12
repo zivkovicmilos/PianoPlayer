@@ -6,5 +6,6 @@ public interface Key {
     int note();
     char getChar();
     void showLabel(boolean show);
-    void setBackground(Color c);
+    void setColor(Color c);
+    void setDefaultColor();
 }

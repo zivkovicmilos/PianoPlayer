@@ -9,16 +9,32 @@ import java.util.Map;
 
 public class WhiteKey extends JButton implements Key {
     private int midiNote;
-    private int num;
+    //private int num;
+    private int startingPos;
     private static Map<Integer, String> desc;
-    private Color pressedBackgroundColor;
+    private Color babyPowder = new Color(242,242,242);
+    private int id = cnt++;
+    private static int cnt = 0;
+    private int offsWidth = 0;
 
-    public WhiteKey(int indx) {
-        num = indx;
+    public void reposition(Dimension d) {
+        offsWidth = d.width;
+        setLocation(startingPos * d.width, 0);
+        setSize(d.width, d.height);
+    }
+
+    public void setStartingPos(int num) {
+        startingPos = num;
+        setLocation(startingPos * 23, 0);
+    }
+
+    public WhiteKey(int indx, JLayeredPane parent) {
         midiNote = 36 + 2 * indx - (indx + 4) / 7 - indx / 7;
-        setBackground(Color.WHITE);
-        setLocation(indx * 23, 0);
-        setSize(23, 120);
+        System.out.println("WHITE KEY #" + indx +" -> " +midiNote);
+        setBackground(babyPowder);
+        setMinimumSize(new Dimension(23, 180));
+        //setLocation(indx * 23, 0);
+        setSize(23, 180);
 
         desc = Reader.initKeyMaps(new File("data\\whiteKeyMap.txt"));
 
@@ -26,11 +42,11 @@ public class WhiteKey extends JButton implements Key {
             @Override
             public void stateChanged(ChangeEvent evt) {
                 if (getModel().isPressed()) {
-                    setBackground(Color.RED);
+                    setBackground(Piano.deepCarmine);
                 } else if (getModel().isRollover()) {
-                    setBackground(Color.RED);
+                    setBackground(Piano.radicalRed);
                 } else {
-                    setBackground(Color.WHITE);
+                    setDefaultColor();
                 }
             }
         });
@@ -40,7 +56,8 @@ public class WhiteKey extends JButton implements Key {
         if (show) {
             setForeground(Color.BLACK);
             setMargin(new Insets(0, 0, 0, 0));
-            setFont(new Font(Font.SANS_SERIF, Font.BOLD, 10));
+            int size = offsWidth ==0?10:offsWidth*10/23;
+            setFont(new Font(Font.SANS_SERIF, Font.BOLD, size));
             setText(getDescr());
             setVerticalAlignment(SwingConstants.BOTTOM);
         } else {
@@ -57,13 +74,15 @@ public class WhiteKey extends JButton implements Key {
     }
 
     public char getChar() {
-        return Reader.getChar(desc.get(num));
+        return Reader.getChar(desc.get(id));
     }
 
     public void setColor(Color c) {
         setBackground(c);
     }
 
-
+    public void setDefaultColor() {
+        setBackground(babyPowder);
+    }
 
 }

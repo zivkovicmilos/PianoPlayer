@@ -7,9 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ControlBoard extends JPanel {
-    private JLabel currentPiece = new JLabel("Ode to Joy");
+    private JLabel currentPiece = new JLabel("got.txt");
+    private JLabel aboveText;
     private JButton play, pause, stop;
     private JButton record;
+    private Color bgColor = new Color(229,227,233);
     private Main parent;
 
     public ControlBoard(Main parent) {
@@ -17,10 +19,11 @@ public class ControlBoard extends JPanel {
         this.parent = parent;
         addLabels();
         addButtons();
+        setBackground(bgColor);
     }
 
     public void addLabels() {
-        JLabel aboveText = new JLabel();
+        aboveText = new JLabel();
         aboveText.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
         aboveText.setText("<html><div style=\"margin: 5px;\">"+"Currently Playing: <br/>" + currentPiece.getText()+ "</div" +
                 "></html>");
@@ -32,8 +35,14 @@ public class ControlBoard extends JPanel {
         currentPiece.setText(current);
     }
 
+    public void changePiece(String name) {
+        aboveText.setText("<html><div style=\"margin: 5px;\">"+"Currently Playing: <br/>" + name+ "</div" +
+                "></html>");
+    }
+
     public void addButtons() {
         JPanel btns = new JPanel();
+        btns.setBackground(bgColor);
         play = new JButton("Play");
         pause = new JButton("Pause");
         stop = new JButton("Stop");
@@ -57,6 +66,8 @@ public class ControlBoard extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.startPlaying();
+                play.setEnabled(false);
+                pause.setEnabled(true);
             }
         });
 
@@ -64,6 +75,8 @@ public class ControlBoard extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.pausePlaying();
+                pause.setEnabled(false);
+                play.setEnabled(true);
             }
         });
 
@@ -71,6 +84,8 @@ public class ControlBoard extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.stopPlaying();
+                play.setEnabled(true);
+                pause.setEnabled(true);
             }
         });
 
@@ -78,7 +93,12 @@ public class ControlBoard extends JPanel {
         btns.add(pause);
         btns.add(stop);
 
-        add(btns, BorderLayout.CENTER);
+        add(btns, BorderLayout.SOUTH);
+    }
+
+    public void notifyEnd() {
+        play.setEnabled(true);
+        pause.setEnabled(false);
     }
 
 }

@@ -1,5 +1,6 @@
 package pianosystem;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -8,11 +9,13 @@ public class Player implements Runnable {
     private Thread t = null;
     private volatile int currentNote;
     private boolean theEnd = true;
+    private ControlBoard parent;
     Map<String, Integer> midiMap = Reader.getMidiMap();
     ArrayList<Composition.Pair> symbolMap = Composition.getSymbolMap();
 
-    public Player() {
+    public Player(ControlBoard parent) {
         playing = false;
+        this.parent = parent;
     }
 
     public synchronized void startPlaying() {
@@ -56,20 +59,46 @@ public class Player implements Runnable {
                         wait();
                     }
                 }
-                if (currentNote < symbolMap.size()) {
+                if (currentNote < symbolMap.size() && !theEnd) {
                     Composition.Pair pair = symbolMap.get(currentNote);
+                    Key keyPlayed = null;
                     MusicSymbol ms = pair.getMs();
                     if (ms instanceof Note) {
+                        Note note = (Note) ms;
                         System.out.println(ms.getDesc());
                         int midiNum = midiMap.get(ms.getDesc().toUpperCase());
-                        Piano.play(midiNum, ms.getDuraton().toMilis() *2);
+                        keyPlayed = Piano.getKeyPlayed(midiNum);
+                        if (keyPlayed != null) {
+                            keyPlayed.setColor(Piano.deepCarmine); // TODO NOT MAPPING CORRECTLY
+                        } else {
+                            System.out.println("NOT MAPPED " + midiNum);
+                        }
+                        long length = 0;
+                        Note[] arr;
+                        int cnt = 0;
+                        if(note.hasNext()) {
+                            // TODO Watch out for multiple notes
+                            Note temp = (Note) ms;
+                            while (temp != null) {
+                                cnt++;
+                               // temp = temp.getNext();
+                            }
+
+                        } else {
+                            length = ms.getDuraton().toMilis() *2;
+                            Piano.play(midiNum, length);
+                        }
                     } else {
                         Piano.play(-1, ms.getDuraton().toMilis() *2);
                     }
                     currentNote++;
+                    if (ms instanceof Note && keyPlayed != null) keyPlayed.setDefaultColor();
+
                 } else {
                     theEnd = true;
+                    currentNote = 0;
                     System.out.println("THE END");
+                    parent.notifyEnd();
                     t.interrupt();
                 }
             }

@@ -37,6 +37,12 @@ public class Composition {
     private static ArrayList<Pair> symbolMap = new ArrayList<Pair>();
 
     public void addSymbols(Map<Character, String> noteMap, File file) {
+        if (symbolMap.size() > 0) {
+            symbolMap = new ArrayList<Pair>();
+            base = 0;
+            oldBase = 0;
+        }
+
         ArrayList<String> regexQueries = new ArrayList<String>();
         Stream<String> lines;
         BufferedReader br;
@@ -172,9 +178,9 @@ public class Composition {
         Collections.sort(symbolMap, (p1, p2) -> {
             return p1.pos.compareTo(p2.pos);
         });
-        for(Pair p : symbolMap) {
-            System.out.println(p);
-        }
+        //for(Pair p : symbolMap) {
+        //    System.out.println(p);
+        //}
        }
 
     public static ArrayList<Pair> getSymbolMap() {

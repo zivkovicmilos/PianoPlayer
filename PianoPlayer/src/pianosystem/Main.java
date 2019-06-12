@@ -8,11 +8,14 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 
 public class Main extends JFrame {
     private Piano p;
     private Player player;
+    private static ControlBoard cb;
     private static Composition c;
+    private static File selectedFile = new File("data\\input\\ode_to_joy.txt");
     private About about = new About(this);
     private static Set<Character> pressed = new HashSet<Character>();
 
@@ -30,6 +33,7 @@ public class Main extends JFrame {
         setLocationRelativeTo(null);
         addMenus();
         addComponents();
+        //validate();
         addWindowListener(new WindowListener());
         setVisible(true);
     }
@@ -59,7 +63,7 @@ public class Main extends JFrame {
             } else if (e.getID() == KeyEvent.KEY_RELEASED) {
                 long length = 0;
                 if (pressed.size() > 1) {
-                    length = 15;
+                    length = 30;
                 } else {
                     length = 180;
                 }
@@ -107,12 +111,32 @@ public class Main extends JFrame {
         file.addSeparator();
         file.add(exit);
 
+        open.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.stopPlaying();
+                cb.notifyEnd();
+                File workingDirectory = new File(System.getProperty("user.dir"));
+                JFileChooser jfc = new JFileChooser();
+                jfc.setCurrentDirectory(workingDirectory);
+                int returnValue = jfc.showOpenDialog(null);
+                // int returnValue = jfc.showSaveDialog(null);
+
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    selectedFile = jfc.getSelectedFile();
+                    c.addSymbols(Reader.getNoteMap(), selectedFile);
+                    cb.changePiece(selectedFile.getName());
+                    System.out.println(selectedFile.getAbsolutePath());
+                }
+            }
+        });
+
         // ===== View ==== //
         view.add(showNotes);
         showNotes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                p.displayNotes(showNotes.getState());
+                p.setDisplay(showNotes.getState());
             }
         });
         // ===== HELP ==== //
@@ -126,21 +150,22 @@ public class Main extends JFrame {
     }
 
     private void addComponents() {
-        ControlBoard cb = new ControlBoard(this);
+        cb = new ControlBoard(this);
         p = new Piano();
-        player = new Player();
-        //addKeyListener(new KeyListener());
-        add(p);
+        p.setPreferredSize(new Dimension(getWidth(), 180));
+        player = new Player(cb);
+        add(cb, BorderLayout.EAST);
+        add(p, BorderLayout.SOUTH);
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new KeyDispatcher());
-        add(cb, BorderLayout.NORTH);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
         Reader r = new Reader();
         Reader.initMaps(new File("data\\map.csv"));
+        //r.printMaps();
         c = new Composition();
-        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\fur_elise.txt"));
+        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\got.txt"));
         new Main();
 
     }

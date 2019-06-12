@@ -63,13 +63,14 @@ public class Reader {
                 map.put(indx, desc);
             }
         });
-        System.out.println(map.size());
+        //System.out.println(map.size());
         try {
             br.close();
         } catch(IOException io) {}
         return map;
     }
 
+    // Finds the keyboard character for the note in form N?. and so on
     public static char getChar(String s) {
         for(Map.Entry<Character, String> entry : noteMap.entrySet()) {
             if (s.equals(entry.getValue())) {
