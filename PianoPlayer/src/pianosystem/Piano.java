@@ -93,14 +93,21 @@ public class Piano extends JLayeredPane {
         }
     }
 
-    public static void play(int[] notes, long length) {
+    public static void play(ArrayList<Integer> notes, long length) {
         // Play multiple notes at the same time
-        ThreadGroup tg = new ThreadGroup("Chord");
-        for(int note : notes) {
-            NotePlayer np = new NotePlayer(tg, note, channel, length);
-        }
-        // maybe call join on all threads?
-        while(tg.activeCount() > 0); // Wait for all of the threads to finish
+        //ThreadGroup tg = new ThreadGroup("Chord");
+        //ArrayList<NotePlayer> players = new ArrayList<>();
+       for(int note : notes) {
+          NotePlayer np = new NotePlayer(note, channel, length);
+          //players.add(np);
+       }
+       /*
+       try {
+           for (NotePlayer np : players) {
+               np.join();
+           }
+       } catch(InterruptedException e) {}
+       */
     }
 
     public static void play(int note, long length) {

@@ -28,6 +28,20 @@ public class Composition {
         }
 
         public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if (ms instanceof Note) {
+                Note temp = (Note) ms;
+                if(temp.hasNext()) {
+                    while(temp != null) {
+                        sb.append(temp.getDesc() + ", ");
+                        temp = temp.getNext();
+                    }
+                    return sb.toString();
+                } else {
+                    sb.append(temp.getDesc());
+                    return sb.toString();
+                }
+            }
             return ms + " at " + pos;
         }
     }
@@ -178,9 +192,10 @@ public class Composition {
         Collections.sort(symbolMap, (p1, p2) -> {
             return p1.pos.compareTo(p2.pos);
         });
-        //for(Pair p : symbolMap) {
-        //    System.out.println(p);
-        //}
+
+        for(Pair p : symbolMap) {
+          System.out.println(p);
+        }
        }
 
     public static ArrayList<Pair> getSymbolMap() {

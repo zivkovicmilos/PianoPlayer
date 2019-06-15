@@ -69,21 +69,22 @@ public class Player implements Runnable {
                         int midiNum = midiMap.get(ms.getDesc().toUpperCase());
                         keyPlayed = Piano.getKeyPlayed(midiNum);
                         if (keyPlayed != null) {
-                            keyPlayed.setColor(Piano.deepCarmine); // TODO NOT MAPPING CORRECTLY
+                            keyPlayed.setColor(Piano.deepCarmine);
                         } else {
                             System.out.println("NOT MAPPED " + midiNum);
                         }
                         long length = 0;
-                        Note[] arr;
-                        int cnt = 0;
-                        if(note.hasNext()) {
+                        ArrayList<Integer> arr = new ArrayList<Integer>();
+                        // Just the first note in the chord
+                        if(note.hasNext() && !note.hasPrev()) {
                             // TODO Watch out for multiple notes
                             Note temp = (Note) ms;
                             while (temp != null) {
-                                cnt++;
-                               // temp = temp.getNext();
+                                arr.add(Reader.getMidiMap().get(temp.getDesc()));
+                                temp = temp.getNext();
                             }
-
+                            length = ms.getDuraton().toMilis()/2;
+                            Piano.play(arr, length);
                         } else {
                             length = ms.getDuraton().toMilis() *2;
                             Piano.play(midiNum, length);

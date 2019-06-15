@@ -34,6 +34,18 @@ public class Note extends MusicSymbol {
         return next != null;
     }
 
+    public boolean hasPrev() {
+        return prev != null;
+    }
+
+    public Note getNext() {
+        return next;
+    }
+
+    public Note getPrev() {
+        return prev;
+    }
+
     @Override
     public String getDesc() {
         boolean uppcase = false;
