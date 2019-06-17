@@ -9,8 +9,7 @@ import java.awt.event.ActionListener;
 public class ControlBoard extends JPanel {
     private JLabel currentPiece = new JLabel("got.txt");
     private JLabel aboveText;
-    private JButton play, pause, stop;
-    private JButton record;
+    private JButton play, pause, stop, record, save;
     private Color bgColor = new Color(229,227,233);
     private Main parent;
 
@@ -43,25 +42,49 @@ public class ControlBoard extends JPanel {
     public void addButtons() {
         JPanel btns = new JPanel();
         btns.setBackground(bgColor);
+
+        // PLAYBACK BTNS //
         play = new JButton("Play");
         pause = new JButton("Pause");
         stop = new JButton("Stop");
-        /*
+
+        // RECORD BTNS //
+        record = new JButton("Record");
+        save = new JButton("Save");
+        save.setEnabled(false);
+
         try {
             ImageIcon img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\play.png");
-            ImageIcon icon = new ImageIcon(img.getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
+           ImageIcon icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
 
             play.setIcon(icon);
 
-            //pause.setIcon(new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\pause.png"));
-            //stop.setIcon(new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\stop.png"));
+            img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\pause.png");
+            icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+
+            pause.setIcon(icon);
+
+            img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\stop.png");
+            icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+
+            stop.setIcon(icon);
+
+            img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\record.png");
+            icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+
+            record.setIcon(icon);
+
+            img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\save.png");
+            icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+
+            save.setIcon(icon);
+
         } catch (Exception ex) {
             System.out.println(ex);
-            System.out.println("greska");
         }
 
-         */
 
+        // ACTION LISTENERS //
         play.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -93,7 +116,13 @@ public class ControlBoard extends JPanel {
         btns.add(pause);
         btns.add(stop);
 
+        JPanel recordBtns = new JPanel();
+        recordBtns.setBackground(bgColor);
+        recordBtns.add(record);
+        recordBtns.add(save);
+
         add(btns, BorderLayout.SOUTH);
+        add(recordBtns, BorderLayout.CENTER);
     }
 
     public void notifyEnd() {

@@ -11,6 +11,7 @@ public class Player implements Runnable {
     private boolean theEnd = true;
     private ControlBoard parent;
     Map<String, Integer> midiMap = Reader.getMidiMap();
+    ArrayList<Key> keys = new ArrayList<>();
     ArrayList<Composition.Pair> symbolMap = Composition.getSymbolMap();
 
     public Player(ControlBoard parent) {
@@ -55,7 +56,7 @@ public class Player implements Runnable {
             while(!t.interrupted()) {
                 synchronized (this) {
                     while(!playing) {
-                        System.out.println("WAITING");
+                        System.out.println("WAITING " + currentNote);
                         wait();
                     }
                 }
@@ -65,42 +66,61 @@ public class Player implements Runnable {
                     MusicSymbol ms = pair.getMs();
                     if (ms instanceof Note) {
                         Note note = (Note) ms;
-                        System.out.println(ms.getDesc());
-                        int midiNum = midiMap.get(ms.getDesc().toUpperCase());
-                        keyPlayed = Piano.getKeyPlayed(midiNum);
-                        if (keyPlayed != null) {
-                            keyPlayed.setColor(Piano.deepCarmine);
-                        } else {
-                            System.out.println("NOT MAPPED " + midiNum);
-                        }
+                        System.out.println(ms.getDesc()); // TODO Remove
+
                         long length = 0;
                         ArrayList<Integer> arr = new ArrayList<Integer>();
                         // Just the first note in the chord
                         if(note.hasNext() && !note.hasPrev()) {
-                            // TODO Watch out for multiple notes
                             Note temp = (Note) ms;
+
                             while (temp != null) {
                                 arr.add(Reader.getMidiMap().get(temp.getDesc()));
+
+                                int midiNum = midiMap.get(temp.getDesc().toUpperCase());
+                                keys.add(Piano.getKeyPlayed(midiNum));
+
                                 temp = temp.getNext();
                             }
-                            length = ms.getDuraton().toMilis()/2;
+                            //length = ms.getDuraton().toMilis()/2;
+                            System.out.println("SIZE " + keys.size());
+                            for(Key k : keys) {
+                                k.setColor(Piano.deepCarmine);
+                            }
+
+                            length = 300; // 1/4
+                            System.out.println("PLAYING " + arr.size() + " NOTES");
                             Piano.play(arr, length);
+
                         } else {
-                            length = ms.getDuraton().toMilis() *2;
-                            Piano.play(midiNum, length);
+                            int midiNum = midiMap.get(ms.getDesc().toUpperCase());
+                            keys.add(Piano.getKeyPlayed(midiNum));
+                            for(Key k : keys) {
+                                k.setColor(Piano.deepCarmine);
+                            }
+
+                            length = ms.getDuraton().toMilis();
+                            Piano.play(midiNum, length, true);
                         }
                     } else {
-                        Piano.play(-1, ms.getDuraton().toMilis() *2);
+                        Piano.play(-1, ms.getDuraton().toMilis(), true);
                     }
-                    currentNote++;
-                    if (ms instanceof Note && keyPlayed != null) keyPlayed.setDefaultColor();
 
+                    if (ms instanceof Note) {
+                        for(Key k : keys) {
+                            k.setDefaultColor();
+                        }
+                    }
+                    keys.clear();
+
+                    if (!theEnd) currentNote++;
                 } else {
                     theEnd = true;
                     currentNote = 0;
                     System.out.println("THE END");
                     parent.notifyEnd();
                     t.interrupt();
+                    keys.clear();
                 }
             }
         } catch(InterruptedException e) {}

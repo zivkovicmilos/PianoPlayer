@@ -63,17 +63,25 @@ public class Main extends JFrame {
             } else if (e.getID() == KeyEvent.KEY_RELEASED) {
                 long length = 0;
                 if (pressed.size() > 1) {
-                    length = 30;
+                    length = 0;
+                    Character last = (Character) pressed.toArray()[pressed.size()-1];
+                    for(Character c: pressed) {
+                        p.grabFromKeyboard(c, length);
+
+                        System.out.println(e.getKeyChar());
+                        pressed.remove(c);
+                    }
+                    p.grabFromKeyboard(last, 300);
+
                 } else {
-                    length = 180;
-                }
+                    length = 300;
+                    for(Character c: pressed) {
+                        p.grabFromKeyboard(c, length);
 
-                for(Character c: pressed) {
-                    p.grabFromKeyboard(c, length);
+                        System.out.println(e.getKeyChar());
+                        pressed.remove(c);
 
-                    System.out.println(e.getKeyChar());
-                    pressed.remove(c);
-
+                    }
                 }
                 p.resetColor();
                 //for(Character c: pressed) {
@@ -95,7 +103,7 @@ public class Main extends JFrame {
         JMenu file = new JMenu("File");
         JMenu view = new JMenu("View");
         JMenu help = new JMenu("Help");
-        JCheckBoxMenuItem showNotes = new JCheckBoxMenuItem("Show Notes", false);
+        JCheckBoxMenuItem showNotes = new JCheckBoxMenuItem("Key Assist", false);
 
         mb.add(file);
         mb.add(view);
@@ -106,6 +114,20 @@ public class Main extends JFrame {
         JMenuItem open = new JMenuItem("Open...");
         JMenuItem reset = new JMenuItem("Reset");
         JMenuItem exit = new JMenuItem("Exit");
+
+        // ICONS //
+        try {
+            ImageIcon img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\open.png");
+            ImageIcon icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+
+            open.setIcon(icon);
+
+            img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\close.png");
+            icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+
+            exit.setIcon(icon);
+        } catch (Exception e) {}
+
         file.add(open);
         file.add(reset);
         file.addSeparator();

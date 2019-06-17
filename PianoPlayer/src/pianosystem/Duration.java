@@ -27,6 +27,6 @@ public class Duration {
     }
 
     public long toMilis() {
-        return denominator==4? 150:75;
+        return denominator==4? 300:150; //150:75
     }
 }

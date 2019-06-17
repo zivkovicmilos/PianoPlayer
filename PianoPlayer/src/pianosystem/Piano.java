@@ -80,14 +80,14 @@ public class Piano extends JLayeredPane {
         System.out.println("PLAYING "+played+ " AT "+length);
         for(BlackKey b : blackKeys) {
             if(played == b.getChar()) {
-                play(b.note(), length);
+                play(b.note(), length, false);
                 return;
             }
         }
 
         for(WhiteKey w : whiteKeys) {
             if(played == w.getChar()) {
-                play(w.note(), length);
+                play(w.note(), length, false);
                 return;
             }
         }
@@ -95,43 +95,29 @@ public class Piano extends JLayeredPane {
 
     public static void play(ArrayList<Integer> notes, long length) {
         // Play multiple notes at the same time
-        //ThreadGroup tg = new ThreadGroup("Chord");
-        //ArrayList<NotePlayer> players = new ArrayList<>();
        for(int note : notes) {
           NotePlayer np = new NotePlayer(note, channel, length);
-          //players.add(np);
        }
-       /*
-       try {
-           for (NotePlayer np : players) {
-               np.join();
-           }
-       } catch(InterruptedException e) {}
-       */
+       // Echo last note
+        NotePlayer np = new NotePlayer(notes.get(notes.size()-1), channel, 180);
     }
 
-    public static void play(int note, long length) {
-        /*
-        System.out.println("PLAYING " + note);
-        if (note > 0) channel.noteOn(note, 50);
-        try {
-            Thread.sleep(length);
-        } catch(InterruptedException e){}
-        if (note > 0) channel.noteOff(note, 50);
-        */
+    public static void play(int note, long length, boolean playback) {
         System.out.println("PLAYING " + note);
         NotePlayer np = new NotePlayer(note, channel, length);
-        try{
-            np.join();
-        } catch (InterruptedException e){}
 
+        if (playback) {
+            try{
+                np.join();
+            } catch (InterruptedException e){}
+        }
     }
 
     private class MouseListener extends MouseAdapter {
         public void mousePressed(MouseEvent me) {
             Key k = (Key) me.getSource();
             k.setColor(deepCarmine);
-            play(k.note(), 180);
+            play(k.note(), 180, false);
         }
     }
 
