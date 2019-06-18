@@ -29,10 +29,20 @@ public class Recorder {
         public void setChord(boolean state) {
             chord = state;
         }
+
+        public String toString() {
+            return "Note "+ note + " pr "+ timeOn + ", rl " + timeOff + " | " + (timeOff-timeOn);
+        }
     }
 
     // Log what notes are played, everything between the notes is a pause
     public static ArrayList<RecEvent> playedNotes = new ArrayList<>();
+
+    private void printRecEvents() {
+        for(RecEvent re : playedNotes) {
+            System.out.println(re);
+        }
+    }
 
     public void generateTrack() {
         // TODO ADD PAUSE AFTER LAST NOTE
@@ -44,9 +54,13 @@ public class Recorder {
         double lastOff = 0;
         //144 -> Note On Event
         //128 -> Note Off Event
+
         for(RecEvent e : playedNotes) {
-            double diff = e.timeOff - e.timeOn;
-            duration = (diff <= 150)? 1:2;
+            // Determine pause length in multiples of 150ms
+            if(lastOff != 0) {
+                int pause = (int) (((lastOff - e.timeOn) + 149) / 150);
+                actionTime = actionTime + tpq * pause;
+            }
 
             if(e.chord) {
                 //actionStart and actionEnd times don't change for chords
@@ -60,17 +74,12 @@ public class Recorder {
                     wasChord = false;
                 }
                 track.add(makeEvent(144, e.note, actionTime));
-                actionTime += tpq/2*duration; // TODO add pause
+                actionTime += tpq;  // TODO add pause
                 track.add(makeEvent(128, e.note, actionTime));
-                // Determine pause length in multiples of 150ms
-                if(lastOff != 0) {
-                    int pause = (int) (((lastOff - e.timeOn) + 149) / 150);
-                    actionTime += tpq / 2 * pause;
-                }
                 lastOff = e.timeOff;
             }
-        }
 
+        }
     }
 
     public MidiEvent makeEvent(int code, int note, int actionTime) {
@@ -97,9 +106,7 @@ public class Recorder {
 
             sequencer.setTickPosition(0);
 
-            //sequencer.recordEnable(track, 1); // TODO change?
-            //sequencer.startRecording();
-
+            printRecEvents();
             generateTrack(); // Load all events onto the track
             playedNotes.clear();
         } catch (Exception e) {

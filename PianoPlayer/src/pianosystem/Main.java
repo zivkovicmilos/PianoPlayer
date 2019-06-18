@@ -2,12 +2,15 @@ package pianosystem;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.net.URL;
 import javax.swing.filechooser.FileSystemView;
 
 public class Main extends JFrame {
@@ -16,7 +19,7 @@ public class Main extends JFrame {
     private static ControlBoard cb;
     private static Composition c;
     private static File selectedFile = new File("data\\input\\ode_to_joy.txt");
-    private About about = new About(this);
+    private About aboutDialog = new About(this);
     private static Set<Character> pressed = new HashSet<Character>();
     private Recorder recorder = new Recorder();
 
@@ -67,15 +70,15 @@ public class Main extends JFrame {
                 System.out.println("SIZE " +Recorder.playedNotes.size());
                 long length = 0;
                 if (pressed.size() > 1) {
-                    length = 0;
+                    length = 300;
                     Character last = (Character) pressed.toArray()[pressed.size()-1];
                     for(Character c: pressed) {
                         p.grabFromKeyboard(c, length);
 
                         System.out.println(e.getKeyChar());
-                        pressed.remove(c);
                     }
-                    p.grabFromKeyboard(last, 300);
+                    pressed.clear();
+                    //p.grabFromKeyboard(last, 300);
 
                     double time = System.currentTimeMillis();
                     for(Recorder.RecEvent re : Recorder.playedNotes) {
@@ -127,12 +130,6 @@ public class Main extends JFrame {
         JMenuItem reset = new JMenuItem("Reset");
         JMenuItem exit = new JMenuItem("Exit");
 
-        // ICONS //
-        try {
-            open.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\open.png"));
-            exit.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\close.png"));
-        } catch (Exception e) {}
-
         file.add(open);
         file.add(reset);
         file.addSeparator();
@@ -158,6 +155,14 @@ public class Main extends JFrame {
             }
         });
 
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.stopPlaying();
+                dispose();
+            }
+        });
+
         // ===== View ==== //
         view.add(showNotes);
         showNotes.addActionListener(new ActionListener() {
@@ -170,8 +175,27 @@ public class Main extends JFrame {
         JMenuItem docs = new JMenuItem("Documentation");
         JMenuItem about = new JMenuItem("About");
 
+        about.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                aboutDialog.setVisible(true);
+            }
+        });
+
         help.add(docs);
         help.add(about);
+
+        // ICONS //
+        try {
+            open.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\open.png"));
+            exit.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\close.png"));
+            docs.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\docs.png"));
+            about.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\about.png"));
+
+            Image icon = Toolkit.getDefaultToolkit().getImage("D:\\FAKS\\POOP\\Projekat " +
+                    "2\\PianoPlayer\\imgs\\logo512x512.png");
+            this.setIconImage(icon);
+        } catch (Exception e) {}
 
         setJMenuBar(mb);
     }
