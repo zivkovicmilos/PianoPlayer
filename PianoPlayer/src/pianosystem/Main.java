@@ -18,6 +18,7 @@ public class Main extends JFrame {
     private static File selectedFile = new File("data\\input\\ode_to_joy.txt");
     private About about = new About(this);
     private static Set<Character> pressed = new HashSet<Character>();
+    private Recorder recorder = new Recorder();
 
     private class WindowListener extends WindowAdapter {
         @Override
@@ -56,11 +57,14 @@ public class Main extends JFrame {
             if (e.getID() == KeyEvent.KEY_PRESSED) {
                 pressed.add(e.getKeyChar());
                 p.setColor(e.getKeyChar());
+                int mid = Reader.getMidiMap().get(Reader.getNoteMap().get(e.getKeyChar()));
+                Recorder.playedNotes.add(recorder.new RecEvent(mid, System.currentTimeMillis()));
 
                 //char played = e.getKeyChar();
                 //System.out.println(played);
                 //p.grabFromKeyboard(played);
             } else if (e.getID() == KeyEvent.KEY_RELEASED) {
+                System.out.println("SIZE " +Recorder.playedNotes.size());
                 long length = 0;
                 if (pressed.size() > 1) {
                     length = 0;
@@ -73,6 +77,11 @@ public class Main extends JFrame {
                     }
                     p.grabFromKeyboard(last, 300);
 
+                    double time = System.currentTimeMillis();
+                    for(Recorder.RecEvent re : Recorder.playedNotes) {
+                        re.setChord(true);
+                        re.setTimeOff(time);
+                    }
                 } else {
                     length = 300;
                     for(Character c: pressed) {
@@ -80,7 +89,10 @@ public class Main extends JFrame {
 
                         System.out.println(e.getKeyChar());
                         pressed.remove(c);
+                    }
 
+                    for(Recorder.RecEvent re : Recorder.playedNotes) {
+                        re.setTimeOff(System.currentTimeMillis());
                     }
                 }
                 p.resetColor();
@@ -117,15 +129,8 @@ public class Main extends JFrame {
 
         // ICONS //
         try {
-            ImageIcon img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\open.png");
-            ImageIcon icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
-
-            open.setIcon(icon);
-
-            img = new ImageIcon("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\close.png");
-            icon = new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
-
-            exit.setIcon(icon);
+            open.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\open.png"));
+            exit.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\close.png"));
         } catch (Exception e) {}
 
         file.add(open);
@@ -172,7 +177,7 @@ public class Main extends JFrame {
     }
 
     private void addComponents() {
-        cb = new ControlBoard(this);
+        cb = new ControlBoard(this, recorder);
         p = new Piano();
         p.setPreferredSize(new Dimension(getWidth(), 180));
         player = new Player(cb);
@@ -189,6 +194,7 @@ public class Main extends JFrame {
         c = new Composition();
         c.addSymbols(Reader.getNoteMap(), new File("data\\input\\got.txt"));
         new Main();
+        System.out.println(System.currentTimeMillis());
 
     }
 }

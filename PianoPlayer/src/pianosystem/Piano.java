@@ -117,7 +117,7 @@ public class Piano extends JLayeredPane {
         public void mousePressed(MouseEvent me) {
             Key k = (Key) me.getSource();
             k.setColor(deepCarmine);
-            play(k.note(), 180, false);
+            play(k.note(), 300, false); // TODO Change MOUSE
         }
     }
 
