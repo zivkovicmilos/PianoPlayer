@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -18,10 +19,12 @@ public class Main extends JFrame {
     private Player player;
     private static ControlBoard cb;
     private static Composition c;
+    private boolean recording = false;
     private static File selectedFile = new File("data\\input\\ode_to_joy.txt");
     private About aboutDialog = new About(this);
     private static Set<Character> pressed = new HashSet<Character>();
-    private Recorder recorder = new Recorder();
+    private Recorder recorder = new Recorder(this);
+    private boolean saving;
 
     private class WindowListener extends WindowAdapter {
         @Override
@@ -57,21 +60,36 @@ public class Main extends JFrame {
     private class KeyDispatcher implements KeyEventDispatcher {
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
-            if (e.getID() == KeyEvent.KEY_PRESSED) {
+            if (e.getID() == KeyEvent.KEY_PRESSED && !saving) {
                 pressed.add(e.getKeyChar());
                 p.setColor(e.getKeyChar());
-                int mid = Reader.getMidiMap().get(Reader.getNoteMap().get(e.getKeyChar()));
-                Recorder.playedNotes.add(recorder.new RecEvent(mid, System.currentTimeMillis()));
+                if (recording) {
+                    int mid = Reader.getMidiMap().get(Reader.getNoteMap().get(e.getKeyChar()));
+                    Recorder.currentBuffer.add(recorder.new RecEvent(mid, System.currentTimeMillis()));
+                }
 
                 //char played = e.getKeyChar();
                 //System.out.println(played);
                 //p.grabFromKeyboard(played);
-            } else if (e.getID() == KeyEvent.KEY_RELEASED) {
-                System.out.println("SIZE " +Recorder.playedNotes.size());
+            } else if (e.getID() == KeyEvent.KEY_RELEASED && !saving) {
+                System.out.println("SIZE " +Recorder.currentBuffer.size());
                 long length = 0;
                 if (pressed.size() > 1) {
                     length = 300;
                     Character last = (Character) pressed.toArray()[pressed.size()-1];
+
+                    if(recording) {
+                        for(Recorder.RecEvent re : Recorder.currentBuffer) {
+                            re.setChord(true);
+
+                            re.setTimeOff(System.currentTimeMillis());
+                            if(re == Recorder.currentBuffer.get(Recorder.currentBuffer.size()-1)) {
+                                re.setLastInChord(true);
+                            }
+                        }
+                        Recorder.transfer();
+                    }
+
                     for(Character c: pressed) {
                         p.grabFromKeyboard(c, length);
 
@@ -80,11 +98,8 @@ public class Main extends JFrame {
                     pressed.clear();
                     //p.grabFromKeyboard(last, 300);
 
-                    double time = System.currentTimeMillis();
-                    for(Recorder.RecEvent re : Recorder.playedNotes) {
-                        re.setChord(true);
-                        re.setTimeOff(time);
-                    }
+                    //double time = System.currentTimeMillis();
+
                 } else {
                     length = 300;
                     for(Character c: pressed) {
@@ -94,8 +109,11 @@ public class Main extends JFrame {
                         pressed.remove(c);
                     }
 
-                    for(Recorder.RecEvent re : Recorder.playedNotes) {
-                        re.setTimeOff(System.currentTimeMillis());
+                    if(recording) {
+                        for(Recorder.RecEvent re : Recorder.currentBuffer) {
+                            re.setTimeOff(System.currentTimeMillis());
+                        }
+                        Recorder.transfer();
                     }
                 }
                 p.resetColor();
@@ -106,11 +124,19 @@ public class Main extends JFrame {
 
                 //p.grabFromKeyboard(played);
                 //System.out.println("released");
-            } else if (e.getID() == KeyEvent.KEY_TYPED) {
+            } else if (e.getID() == KeyEvent.KEY_TYPED && !saving) {
                 System.out.println("typed " + e.getKeyChar());
             }
             return false;
         }
+    }
+
+    public void notifyRecord(boolean state) {
+        recording = state;
+    }
+
+    public void notifySaving(boolean state) {
+        saving = state;
     }
 
     private void addMenus() {

@@ -103,8 +103,8 @@ public class ControlBoard extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 record.setEnabled(false);
-
                 save.setEnabled(true);
+                parent.notifyRecord(true);
             }
         });
 
@@ -115,6 +115,7 @@ public class ControlBoard extends JPanel {
                 rec.stopRec();
                 save.setEnabled(false);
                 record.setEnabled(true);
+                parent.notifyRecord(false);
             }
         });
 
