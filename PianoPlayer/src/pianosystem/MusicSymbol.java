@@ -9,6 +9,13 @@ public abstract class MusicSymbol {
         this.d = d;
     }
 
+    public double getDurationDouble() {
+       if(d.isQuarter()) {
+           return (double)1/4;
+       }
+       return (double)1/8;
+    }
+
     public Duration getDuraton() {
         return d;
     }

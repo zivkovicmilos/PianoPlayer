@@ -15,12 +15,12 @@ public class Composition {
 
     static public class Pair {
         MusicSymbol ms;
-        //char txt;
+        char charDesc;
         Integer pos;
-        public Pair(MusicSymbol ms, Integer pos/*, char txt*/) {
+        public Pair(MusicSymbol ms, Integer pos, char charDesc) {
             this.ms = ms;
             this.pos = pos;
-            //this.txt = txt;
+            this.charDesc = charDesc;
         }
 
         public MusicSymbol getMs() {
@@ -126,7 +126,7 @@ public class Composition {
                                 // The symbol is a pause within [ ]
                                 temp = new Pause(d);
 
-                                symbolMap.add(new Pair(temp, offset + num));
+                                symbolMap.add(new Pair(temp, offset + num, ' '));
                                 offset++;
                                 continue;
                             }
@@ -143,7 +143,7 @@ public class Composition {
 
                             temp = new Note(d, octave, isSharp, pitch);
 
-                            symbolMap.add(new Pair(temp, offset + num));
+                            symbolMap.add(new Pair(temp, offset + num, note));
 
                             if (connected && (oldNote != null)) {
                                 oldNote.addNext((Note)temp);
@@ -182,7 +182,7 @@ public class Composition {
                             temp = new Note(new Duration(1, 4), octave, isSharp, pitch);
                         }
 
-                        symbolMap.add(new Pair(temp, num/*, workingStr.charAt(0)*/));
+                        symbolMap.add(new Pair(temp, num, workingStr.charAt(0)));
                     }
                 }
             }

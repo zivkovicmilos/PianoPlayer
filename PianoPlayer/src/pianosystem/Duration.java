@@ -29,4 +29,8 @@ public class Duration {
     public long toMilis() {
         return denominator==4? 300:150; //150:75
     }
+
+    public static boolean equals(Duration d1, Duration d2) {
+        return ((d1.numerator == d2.numerator) && (d1.denominator == d2.denominator));
+    }
 }

@@ -19,6 +19,7 @@ public class Main extends JFrame {
     private Player player;
     private static ControlBoard cb;
     private static Composition c;
+    private NoteView nv;
     private boolean recording = false;
     private static File selectedFile = new File("data\\input\\ode_to_joy.txt");
     private About aboutDialog = new About(this);
@@ -60,6 +61,7 @@ public class Main extends JFrame {
     private class KeyDispatcher implements KeyEventDispatcher {
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
+            if(e.getKeyCode() == KeyEvent.VK_SHIFT) return false;
             if (e.getID() == KeyEvent.KEY_PRESSED && !saving) {
                 pressed.add(e.getKeyChar());
                 p.setColor(e.getKeyChar());
@@ -92,7 +94,7 @@ public class Main extends JFrame {
 
                     for(Character c: pressed) {
                         p.grabFromKeyboard(c, length);
-
+                        nv.removeNote(c); // Update NoteView
                         System.out.println(e.getKeyChar());
                     }
                     pressed.clear();
@@ -104,6 +106,10 @@ public class Main extends JFrame {
                     length = 300;
                     for(Character c: pressed) {
                         p.grabFromKeyboard(c, length);
+                        if(c == 'D') {
+                            System.out.println("here");
+                        }
+                        nv.removeNote(c); // Update NoteView
 
                         System.out.println(e.getKeyChar());
                         pressed.remove(c);
@@ -176,8 +182,18 @@ public class Main extends JFrame {
                     selectedFile = jfc.getSelectedFile();
                     c.addSymbols(Reader.getNoteMap(), selectedFile);
                     cb.changePiece(selectedFile.getName());
+                    nv.resetView();
                     System.out.println(selectedFile.getAbsolutePath());
                 }
+            }
+        });
+
+        reset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.stopPlaying();
+                cb.notifyEnd();
+                nv.resetView();
             }
         });
 
@@ -231,8 +247,13 @@ public class Main extends JFrame {
         p = new Piano();
         p.setPreferredSize(new Dimension(getWidth(), 180));
         player = new Player(cb);
+        nv = new NoteView();
+        add(nv, BorderLayout.WEST);
         add(cb, BorderLayout.EAST);
         add(p, BorderLayout.SOUTH);
+
+
+
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new KeyDispatcher());
     }
@@ -242,7 +263,7 @@ public class Main extends JFrame {
         Reader.initMaps(new File("data\\map.csv"));
         //r.printMaps();
         c = new Composition();
-        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\got.txt"));
+        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\jingle_bells.txt"));
         new Main();
         System.out.println(System.currentTimeMillis());
 

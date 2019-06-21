@@ -5,8 +5,8 @@ import java.awt.Color;
 public class Note extends MusicSymbol {
     public enum Pitch {C, D, E, F, G, A, B};
 
-    private Color lightGreen = new Color(183,215,160);
-    private Color lightRed = Color.RED;
+    private Color lightGreen = new Color(125,206,130);
+    private Color lightRed = new Color(255,75,48);
 
     private Note next;
     private Note prev;
@@ -14,6 +14,16 @@ public class Note extends MusicSymbol {
     private Pitch p;
     private int octave;
     private boolean sharp;
+
+    private boolean played = false; // For the NoteView class, if the note belongs to the chord
+
+    public boolean wasPlayed() {
+        return played;
+    }
+
+    public void setPlayed(boolean state) {
+        played = state;
+    }
 
     public void addNext(Note n) {
         next = n;
@@ -70,6 +80,10 @@ public class Note extends MusicSymbol {
         } else {
             return lightGreen;
         }
+    }
+
+    public char getCharDesc() {
+        return Reader.getChar(getDesc().toUpperCase());
     }
 
     public static Note.Pitch getPitch(char c) {
