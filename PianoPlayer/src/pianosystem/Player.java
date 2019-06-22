@@ -64,6 +64,8 @@ public class Player implements Runnable {
                     Composition.Pair pair = symbolMap.get(currentNote);
                     Key keyPlayed = null;
                     MusicSymbol ms = pair.getMs();
+                    int offSet = 1;
+
                     if (ms instanceof Note) {
                         Note note = (Note) ms;
                         System.out.println(ms.getDesc()); // TODO Remove
@@ -76,23 +78,28 @@ public class Player implements Runnable {
 
                             while (temp != null) {
                                 arr.add(Reader.getMidiMap().get(temp.getDesc()));
-
+                                offSet++;
                                 int midiNum = midiMap.get(temp.getDesc().toUpperCase());
                                 keys.add(Piano.getKeyPlayed(midiNum));
 
                                 temp = temp.getNext();
                             }
+                            offSet--;
                             //length = ms.getDuraton().toMilis()/2;
                             System.out.println("SIZE " + keys.size());
                             for(Key k : keys) {
                                 k.setColor(Piano.deepCarmine);
                             }
-
+                            // TODO cekati na poslednju?
                             length = 300; // 1/4
                             System.out.println("PLAYING " + arr.size() + " NOTES");
-                            Piano.play(arr, length);
+                            for(Integer oneNote : arr) {
+                                Piano.play(oneNote, 300, false);
+                            }
+                            //Piano.play(arr, length);
 
-                        } else {
+                        } else if(!note.hasPrev() && !note.hasNext()){
+
                             int midiNum = midiMap.get(ms.getDesc().toUpperCase());
                             keys.add(Piano.getKeyPlayed(midiNum));
                             for(Key k : keys) {
@@ -101,6 +108,7 @@ public class Player implements Runnable {
 
                             length = ms.getDuraton().toMilis();
                             Piano.play(midiNum, length, true);
+                            System.out.println("PLAYED");
                         }
                     } else {
                         Piano.play(-1, ms.getDuraton().toMilis(), true);
@@ -111,9 +119,12 @@ public class Player implements Runnable {
                             k.setDefaultColor();
                         }
                     }
-                    keys.clear();
 
-                    if (!theEnd) currentNote++;
+
+                    if (!theEnd) {
+                        currentNote += offSet;
+                    }
+                    keys.clear();
                 } else {
                     theEnd = true;
                     currentNote = 0;

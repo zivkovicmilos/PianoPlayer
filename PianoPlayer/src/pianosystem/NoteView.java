@@ -3,6 +3,7 @@ package pianosystem;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class NoteView extends JPanel implements Runnable {
@@ -12,9 +13,9 @@ public class NoteView extends JPanel implements Runnable {
     private double MAX = 8/4;
     private double currDur = 0;
     private int currIndx = 0;
-    private char n;
     private Thread t;
     private boolean working = false;
+    public static volatile ArrayList<Character> pressedChars = new ArrayList<>();
 
     public NoteView() {
         setBorder(new EmptyBorder(0, 10, 10, 10));
@@ -33,51 +34,59 @@ public class NoteView extends JPanel implements Runnable {
                     while(!working) wait();
                     System.out.println("WORKING");
                 }
-
+                boolean updateRequired = false;
                 Note currentNote = (Note) displayedNotes.get(0);
 
-                int count = 0; // number of notes in the chord
+                int numInChord = 0;
                 int playedCnt = 0; // number of already played notes in the chord
 
                 if(currentNote.hasNext()) {
                     Note temp = currentNote;
                     while(temp != null) {
-                        count++;
-                        if(temp.getCharDesc() == n) {
+                        if(pressedChars.contains(temp.getCharDesc())) {
                             temp.setPlayed(true);
                         }
+                        numInChord++;
                         if(temp.wasPlayed()) playedCnt++;
                         temp = temp.getNext();
                     }
-                    if(count == playedCnt) {
+                    if(numInChord == playedCnt) {
                         // Remove the chord, add note(s) that last for 1/4
                         // TODO FIX display / removal of chords
                         temp = currentNote;
                         while(temp != null) {
-                            if(temp.getCharDesc() == n) {
-                                temp.setPlayed(false);
-                            }
+                            temp.setPlayed(false);
                             temp = temp.getNext();
                         }
-                        currDur -= (double)1/4;
+                        currDur = currDur - (double)1/4;
                         displayedNotes.remove(0);
+                        updateRequired = true;
+                    } else {
+                        // Not all of the chord keys were pressed at once, just individually
+                        temp = currentNote;
+                        while(temp != null) {
+                            temp.setPlayed(false);
+                            temp = temp.getNext();
+                        }
                     }
                 } else {
-                    if (((Note) displayedNotes.get(0)).getCharDesc() == n) {
+                    if (pressedChars.contains(((Note) displayedNotes.get(0)).getCharDesc())) {
                         currDur -= displayedNotes.get(0).getDurationDouble();
                         displayedNotes.remove(0);
+                        updateRequired = true;
                     }
                 }
-                fillSpace();
+                if(updateRequired) fillSpace();
                 working = false;
+                updateRequired = false;
+                repaint();
             }
         } catch(InterruptedException e) {}
     }
 
-    public synchronized void removeNote(char n) {
+    public synchronized void removeNote() {
         if(t != null) {
             working = true;
-            this.n = n;
             notifyAll();
         }
     }
@@ -100,27 +109,29 @@ public class NoteView extends JPanel implements Runnable {
 
     public void initNotes() {
 
+        int noteCnt = 1;
         if(currIndx < symbolMap.size()) {
             while (!(currDur == MAX)) {
+                noteCnt = 1;
                 MusicSymbol ms = symbolMap.get(currIndx).ms;
                 if (ms instanceof Note) {
                     Note temp = (Note) ms;
 
                     if (temp.hasNext() && !temp.hasPrev()) {
-                        Note tempTravers = temp;
+                        Note tempTravers = temp.getNext();
                         while (tempTravers != null) {
-                            currIndx++;
+                            //currIndx++;
+                            noteCnt++;
                             tempTravers = tempTravers.getNext();
                         }
                     }
 
                     if (temp.hasPrev()) continue;
                 }
-                // TODO add currDur + noteDuration >= MAX
                 if(currDur + ms.getDurationDouble() <= MAX) {
                     displayedNotes.add(ms);
                     currDur += ms.getDurationDouble();
-                    currIndx++;
+                    currIndx+= noteCnt;
                 } else {
                     break;
                 }

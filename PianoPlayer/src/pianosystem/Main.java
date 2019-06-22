@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -26,6 +27,7 @@ public class Main extends JFrame {
     private static Set<Character> pressed = new HashSet<Character>();
     private Recorder recorder = new Recorder(this);
     private boolean saving;
+    //private ArrayList<Character> pressedChars = new ArrayList<>();
 
     private class WindowListener extends WindowAdapter {
         @Override
@@ -92,11 +94,14 @@ public class Main extends JFrame {
                         Recorder.transfer();
                     }
 
+                    NoteView.pressedChars.clear();
                     for(Character c: pressed) {
                         p.grabFromKeyboard(c, length);
-                        nv.removeNote(c); // Update NoteView
+                        NoteView.pressedChars.add(c);
                         System.out.println(e.getKeyChar());
                     }
+                    nv.removeNote();
+
                     pressed.clear();
                     //p.grabFromKeyboard(last, 300);
 
@@ -106,14 +111,14 @@ public class Main extends JFrame {
                     length = 300;
                     for(Character c: pressed) {
                         p.grabFromKeyboard(c, length);
-                        if(c == 'D') {
-                            System.out.println("here");
-                        }
-                        nv.removeNote(c); // Update NoteView
+
+                        NoteView.pressedChars.clear();
+                        NoteView.pressedChars.add(c);
 
                         System.out.println(e.getKeyChar());
                         pressed.remove(c);
                     }
+                    nv.removeNote(); // Update NoteView
 
                     if(recording) {
                         for(Recorder.RecEvent re : Recorder.currentBuffer) {
@@ -263,7 +268,7 @@ public class Main extends JFrame {
         Reader.initMaps(new File("data\\map.csv"));
         //r.printMaps();
         c = new Composition();
-        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\jingle_bells.txt"));
+        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\test.txt"));
         new Main();
         System.out.println(System.currentTimeMillis());
 

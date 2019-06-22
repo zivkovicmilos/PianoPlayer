@@ -96,10 +96,12 @@ public class Piano extends JLayeredPane {
     public static void play(ArrayList<Integer> notes, long length) {
         // Play multiple notes at the same time
        for(int note : notes) {
-          NotePlayer np = new NotePlayer(note, channel, length);
+          //NotePlayer np = new NotePlayer(note, channel, length);
+           play(note, length, false);
        }
+
        // Echo last note
-        NotePlayer np = new NotePlayer(notes.get(notes.size()-1), channel, 180);
+        //NotePlayer np = new NotePlayer(notes.get(notes.size()-1), channel, 180);
     }
 
     public static void play(int note, long length, boolean playback) {
