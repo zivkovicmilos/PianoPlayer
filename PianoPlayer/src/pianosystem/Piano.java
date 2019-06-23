@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Map;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
@@ -17,6 +16,7 @@ public class Piano extends JLayeredPane {
     public static Color deepCarmine = new Color(204,2,39);
     public static Color radicalRed = new Color(255,56,92);
     private boolean showingNotes = false;
+    private Recorder recorder;
 
     private static MidiChannel getChannel(int instrument) throws MidiUnavailableException {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
@@ -95,10 +95,14 @@ public class Piano extends JLayeredPane {
 
     public static void play(ArrayList<Integer> notes, long length) {
         // Play multiple notes at the same time
-       for(int note : notes) {
-          //NotePlayer np = new NotePlayer(note, channel, length);
-           play(note, length, false);
-       }
+        NotePlayer last = null;
+        for(int i = 0; i< notes.size(); i++) {
+            NotePlayer np = new NotePlayer(notes.get(i), channel, length);
+            if(i == (notes.size()-1)) last = np;
+        }
+       try {
+           last.join();
+       } catch (InterruptedException e) {}
 
        // Echo last note
         //NotePlayer np = new NotePlayer(notes.get(notes.size()-1), channel, 180);
@@ -118,12 +122,29 @@ public class Piano extends JLayeredPane {
     private class MouseListener extends MouseAdapter {
         public void mousePressed(MouseEvent me) {
             Key k = (Key) me.getSource();
-            k.setColor(deepCarmine);
             play(k.note(), 300, false); // TODO Change MOUSE
+            if (Main.recording) {
+                int mid = Reader.getMidiMap().get(Reader.getNoteMap().get(k.getChar()));
+                Recorder.currentBuffer.add(recorder.new RecEvent(mid, System.currentTimeMillis()));
+            }
+
+            k.setColor(deepCarmine);
+        }
+
+        public void mouseReleased (MouseEvent mr) {
+            Key k = (Key) mr.getSource();
+
+            if(Main.recording) {
+                for(Recorder.RecEvent re : Recorder.currentBuffer) {
+                    re.setTimeOff(System.currentTimeMillis());
+                }
+                Recorder.transfer();
+            }
         }
     }
 
-    public Piano() {
+    public Piano(Recorder recorder) {
+        this.recorder = recorder;
         try{
             channel = getChannel(1);
             channel.controlChange(7,(int)(1.0 *127.0));

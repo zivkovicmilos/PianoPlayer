@@ -75,12 +75,15 @@ public class Player implements Runnable {
                         // Just the first note in the chord
                         if(note.hasNext() && !note.hasPrev()) {
                             Note temp = (Note) ms;
-
+                            // Update the NoteView
+                            NoteView.pressedChars.clear();
                             while (temp != null) {
                                 arr.add(Reader.getMidiMap().get(temp.getDesc()));
                                 offSet++;
                                 int midiNum = midiMap.get(temp.getDesc().toUpperCase());
                                 keys.add(Piano.getKeyPlayed(midiNum));
+
+                                NoteView.pressedChars.add(Reader.getChar(temp.getDesc().toUpperCase()));
 
                                 temp = temp.getNext();
                             }
@@ -93,11 +96,10 @@ public class Player implements Runnable {
                             // TODO cekati na poslednju?
                             length = 300; // 1/4
                             System.out.println("PLAYING " + arr.size() + " NOTES");
-                            for(Integer oneNote : arr) {
-                                Piano.play(oneNote, 300, false);
-                            }
-                            //Piano.play(arr, length);
-
+                            //for(Integer oneNote : arr) {
+                            //    Piano.play(oneNote, 300, false);
+                           // }
+                            Piano.play(arr, length);
                         } else if(!note.hasPrev() && !note.hasNext()){
 
                             int midiNum = midiMap.get(ms.getDesc().toUpperCase());
@@ -109,6 +111,11 @@ public class Player implements Runnable {
                             length = ms.getDuraton().toMilis();
                             Piano.play(midiNum, length, true);
                             System.out.println("PLAYED");
+
+                            // Update the NoteView
+                            NoteView.pressedChars.clear();
+                            NoteView.pressedChars.add(Reader.getChar(note.getDesc().toUpperCase()));
+                            //Main.nv.removeNote();
                         }
                     } else {
                         Piano.play(-1, ms.getDuraton().toMilis(), true);
@@ -120,11 +127,11 @@ public class Player implements Runnable {
                         }
                     }
 
-
                     if (!theEnd) {
                         currentNote += offSet;
                     }
                     keys.clear();
+                    Main.nv.removeNote();
                 } else {
                     theEnd = true;
                     currentNote = 0;
@@ -132,6 +139,7 @@ public class Player implements Runnable {
                     parent.notifyEnd();
                     t.interrupt();
                     keys.clear();
+                    Main.nv.resetView();
                 }
             }
         } catch(InterruptedException e) {}

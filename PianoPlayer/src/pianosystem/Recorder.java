@@ -5,8 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.time.Instant;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 public class Recorder {
@@ -15,6 +16,7 @@ public class Recorder {
     private Track track;
     private int tpq = 48;
     private Main parent;
+    private StringBuilder sb;
     private static File savedFile = new File("");
 
     public Recorder(Main parent) {
@@ -68,7 +70,6 @@ public class Recorder {
     }
 
     public void generateTrack() {
-        // TODO ADD PAUSE AFTER LAST NOTE
         //duration = ms->getDuration() == Duration(1, 4) ? 2 : 1;
         int actionTime = 0;
         int chordEndTime = 0;
@@ -78,18 +79,21 @@ public class Recorder {
         boolean inChord = false;
         //144 -> Note On Event
         //128 -> Note Off Event
-
-        for(RecEvent e : playedNotes) {
+        //RecEvent e : playedNotes
+        for(int i = 0; i < playedNotes.size(); i++) {
+            RecEvent e = playedNotes.get(i);
             // Determine pause length in multiples of 150ms
             if(lastOff != 0 && !inChord) {
                 int pause = (int) ((e.timeOn - lastOff) / 300);
-
-                actionTime = actionTime + tpq/2 * pause;
+                if (pause == 0) {
+                    actionTime = actionTime + tpq/2;
+                } else {
+                    actionTime = actionTime + tpq/2*pause;
+                }
             }
 
             if(e.chord) {
                 //actionStart and actionEnd times don't change for chords
-                // TODO fix
                 track.add(makeEvent(144, e.note, actionTime));
                 track.add(makeEvent(128, e.note, actionTime+tpq/2));
                 wasChord = true;
@@ -105,7 +109,7 @@ public class Recorder {
                     wasChord = false;
                 }
                 track.add(makeEvent(144, e.note, actionTime));
-                actionTime += tpq/2;  // TODO add pause
+                actionTime += tpq/2;
                 track.add(makeEvent(128, e.note, actionTime));
                 lastOff = e.timeOff;
             }
@@ -123,6 +127,44 @@ public class Recorder {
         }
         catch (Exception ex) {}
         return event;
+    }
+
+    public void recordToTxt() {
+        long lastOff = 0;
+        boolean inChord = false;
+        sb = new StringBuilder();
+        for(int i = 0; i<playedNotes.size(); i++) {
+            RecEvent re = playedNotes.get(i);
+
+            if(lastOff != 0 && !inChord) {
+                int pause = (int) ((re.timeOn - lastOff) / 300);
+                if(pause > 0) {
+                    int longPause = pause / 2;
+                    for(int j = 0; j<longPause; j++) {
+                        sb.append(" ");
+                        sb.append("|");
+                        sb.append(" ");
+                    }
+                    for(int j = 0; j<pause%2; j++) {
+                        sb.append(" ");
+                    }
+                }
+            }
+
+            if(re.chord) {
+                if(!inChord) sb.append("["); // Mark the beginning of the chord sequence
+                sb.append(Reader.getChar(re.note));
+                inChord = true;
+                if (re.lastInChord) {
+                    lastOff = re.timeOff;
+                    inChord = false;
+                    sb.append("]");
+                }
+            } else {
+                sb.append(Reader.getChar(re.note));
+                lastOff = re.timeOff;
+            }
+        }
     }
 
     public void recordToFile() {
@@ -144,15 +186,10 @@ public class Recorder {
         }
     }
 
-    public void writeToFile(File saveFile) {
-
-    }
-
-    public void stopRec() {
+    public void stopRec(boolean txt) {
         try {
             //sequencer.stopRecording();
             // SAVE THE FILE //
-            // TODO add file chooser
             parent.notifySaving(true);
             //File savedFile = new File("");
             File workingDirectory = new File(System.getProperty("user.dir"));
@@ -175,9 +212,15 @@ public class Recorder {
             });
             save.setCurrentDirectory(workingDirectory);
             save.showSaveDialog(parent);
+            if(!txt) {
+                int[] allowedTypes = MidiSystem.getMidiFileTypes(sequence);
+                MidiSystem.write(sequence, allowedTypes[0], savedFile);
+            } else {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(savedFile));
+                writer.write(sb.toString());
+                writer.close();
+            }
 
-            int[] allowedTypes = MidiSystem.getMidiFileTypes(sequence);
-            MidiSystem.write(sequence, allowedTypes[0], savedFile);
             parent.notifySaving(false);
         } catch (Exception e) {
             System.out.println("Something went wrong");

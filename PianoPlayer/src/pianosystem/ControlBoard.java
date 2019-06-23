@@ -1,15 +1,14 @@
 package pianosystem;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ControlBoard extends JPanel {
-    private JLabel currentPiece = new JLabel("got.txt");
+    private JLabel currentPiece = new JLabel("game_of_thrones.txt");
     private JLabel aboveText;
-    private JButton play, pause, stop, record, save;
+    private JButton play, pause, stop, record, save, saveTxt;
     private Color bgColor = new Color(229,227,233);
     private Main parent;
     private Recorder rec;
@@ -57,15 +56,18 @@ public class ControlBoard extends JPanel {
 
         // RECORD BTNS //
         record = new JButton("Record");
-        save = new JButton("Save");
+        save = new JButton("Save as MIDI");
         save.setEnabled(false);
+        saveTxt = new JButton("Save as TXT");
+        saveTxt.setEnabled(false);
 
         try {
-            play.setIcon(setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\play.png"));
-            pause.setIcon(setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\pause.png"));
-            stop.setIcon(setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\stop.png"));
-            record.setIcon(setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\record.png"));
-            save.setIcon(setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\save.png"));
+            play.setIcon(setImage("imgs\\play.png"));
+            pause.setIcon(setImage("imgs\\pause.png"));
+            stop.setIcon(setImage("imgs\\stop.png"));
+            record.setIcon(setImage("imgs\\record.png"));
+            save.setIcon(setImage("imgs\\midi.png"));
+            saveTxt.setIcon(setImage("imgs\\save.png"));
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -104,6 +106,7 @@ public class ControlBoard extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 record.setEnabled(false);
                 save.setEnabled(true);
+                saveTxt.setEnabled(true);
                 parent.notifyRecord(true);
             }
         });
@@ -112,8 +115,21 @@ public class ControlBoard extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 rec.recordToFile();
-                rec.stopRec();
+                rec.stopRec(false);
                 save.setEnabled(false);
+                saveTxt.setEnabled(false);
+                record.setEnabled(true);
+                parent.notifyRecord(false);
+            }
+        });
+
+        saveTxt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                rec.recordToTxt();
+                rec.stopRec(true);
+                save.setEnabled(false);
+                saveTxt.setEnabled(false);
                 record.setEnabled(true);
                 parent.notifyRecord(false);
             }
@@ -123,10 +139,18 @@ public class ControlBoard extends JPanel {
         btns.add(pause);
         btns.add(stop);
 
-        JPanel recordBtns = new JPanel();
+        JPanel recordBtns = new JPanel(new GridBagLayout());
+        GridBagConstraints recConst = new GridBagConstraints();
         recordBtns.setBackground(bgColor);
-        recordBtns.add(record);
-        recordBtns.add(save);
+        recConst.insets = new Insets(0, 0, 10, 0);
+        recConst.gridx = 0;
+        recConst.gridy = 0;
+        recordBtns.add(record, recConst);
+        recConst.gridy++;
+
+        recordBtns.add(save, recConst);
+        recConst.gridx++;
+        recordBtns.add(saveTxt, recConst);
 
         add(btns, BorderLayout.SOUTH);
         add(recordBtns, BorderLayout.CENTER);

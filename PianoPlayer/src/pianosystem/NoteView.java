@@ -3,7 +3,6 @@ package pianosystem;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class NoteView extends JPanel implements Runnable {
@@ -13,18 +12,35 @@ public class NoteView extends JPanel implements Runnable {
     private double MAX = 8/4;
     private double currDur = 0;
     private int currIndx = 0;
+    private boolean formal = false;
+    private int quarterWidth = 50;
     private Thread t;
     private boolean working = false;
     public static volatile ArrayList<Character> pressedChars = new ArrayList<>();
 
+
     public NoteView() {
-        setBorder(new EmptyBorder(0, 10, 10, 10));
+        setBorder(new EmptyBorder(0, 20, 10, 10));
+        //setBorder(BorderFactory.createLineBorder(Color.black));
         setLayout(new GridBagLayout());
         cons = new GridBagConstraints();
         initNotes();
         working = false;
         t = new Thread(this);
         t.start();
+    }
+
+    public void notifySizeChange(boolean state) {
+        if (state) {
+            quarterWidth = 100;
+        } else {
+            quarterWidth = 50;
+        }
+        //if(!Main.playing) resetView();
+    }
+
+    public void setFormal(boolean state) {
+        formal = state;
     }
 
     public void run() {
@@ -34,6 +50,7 @@ public class NoteView extends JPanel implements Runnable {
                     while(!working) wait();
                     System.out.println("WORKING");
                 }
+
                 boolean updateRequired = false;
                 Note currentNote = (Note) displayedNotes.get(0);
 
@@ -98,9 +115,10 @@ public class NoteView extends JPanel implements Runnable {
         }
         while(displayedNotes.get(0) instanceof Pause) {
             try {
-                t.sleep(displayedNotes.get(0).getDuraton().toMilis()); // TODO add delay when pause is the current note
+                t.sleep(displayedNotes.get(0).getDuraton().toMilis());
                 currDur -= displayedNotes.get(0).getDurationDouble();
                 displayedNotes.remove(0);
+                //initNotes(); // show pause getting deleted
             } catch (InterruptedException e) {}
         }
 
@@ -110,6 +128,9 @@ public class NoteView extends JPanel implements Runnable {
     public void initNotes() {
 
         int noteCnt = 1;
+        if(currIndx == symbolMap.size()-1) {
+            System.out.println("HERE");
+        }
         if(currIndx < symbolMap.size()) {
             while (!(currDur == MAX)) {
                 noteCnt = 1;
@@ -132,6 +153,7 @@ public class NoteView extends JPanel implements Runnable {
                     displayedNotes.add(ms);
                     currDur += ms.getDurationDouble();
                     currIndx+= noteCnt;
+                    if(currIndx == symbolMap.size()) break; // Reached the end
                 } else {
                     break;
                 }
@@ -169,14 +191,13 @@ public class NoteView extends JPanel implements Runnable {
             cons.gridx = 0;
             for(MusicSymbol ms : displayedNotes) {
                 if(ms instanceof Note) {
-                    add(getNoteLabel((Note)ms, false), cons); // TODO add formal option
+                    add(getNoteLabel((Note)ms), cons);
                 } else {
                     add(getPauseLabel((Pause)ms), cons);
                 }
                 cons.gridx++;
             }
         } else {
-            // TODO ADD FOR MAXHEIGHT > 1
             cons.gridy = 0;
             cons.gridx = 0;
 
@@ -187,7 +208,7 @@ public class NoteView extends JPanel implements Runnable {
                     if(temp.hasNext() && !temp.hasPrev()) {
                         cons.gridy = 0;
                         while(temp != null) {
-                            add(getNoteLabel((Note)temp, false), cons);
+                            add(getNoteLabel((Note)temp), cons);
                             cons.gridy++;
                             temp = temp.getNext();
                         }
@@ -195,7 +216,7 @@ public class NoteView extends JPanel implements Runnable {
                     } else if(!temp.hasPrev()){
                         // Not a chord
                         cons.gridy = yNonChord;
-                        add(getNoteLabel((Note)temp, false), cons);
+                        add(getNoteLabel((Note)temp), cons);
                         cons.gridx++;
                     }
                 } else {
@@ -205,9 +226,20 @@ public class NoteView extends JPanel implements Runnable {
                     cons.gridx++;
                 }
             }
-
         }
         this.revalidate();
+    }
+
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        int posx = 20;
+        int width = getWidth()/8;
+        for(int i = 0; i <9; i++) {
+            g.fillRect(posx, getHeight()-160, 3, 30);
+            posx+=width;
+        }
     }
 
     public void resetView() {
@@ -228,14 +260,14 @@ public class NoteView extends JPanel implements Runnable {
         ret.setBackground(p.getColor());
         ret.setOpaque(true);
         if(p.getDuraton().isQuarter()) {
-            ret.setPreferredSize(new Dimension(50, 25));
+            ret.setPreferredSize(new Dimension(quarterWidth, quarterWidth/2));
         } else {
-            ret.setPreferredSize(new Dimension(25, 25));
+            ret.setPreferredSize(new Dimension(quarterWidth/2, quarterWidth/2));
         }
         return ret;
     }
 
-    public JLabel getNoteLabel(Note n, boolean formal) {
+    public JLabel getNoteLabel(Note n) {
         JLabel ret;
         if(formal) { // Display note as N#n
             ret = new JLabel(n.getDesc(), SwingConstants.CENTER);
@@ -249,9 +281,15 @@ public class NoteView extends JPanel implements Runnable {
         ret.setOpaque(true);
 
         if(n.getDuraton().isQuarter()) {
-            ret.setPreferredSize(new Dimension(50, 25));
+            ret.setPreferredSize(new Dimension(quarterWidth, quarterWidth/2));
         } else {
-            ret.setPreferredSize(new Dimension(25, 25));
+            ret.setPreferredSize(new Dimension(quarterWidth/2, quarterWidth/2));
+        }
+
+        if(quarterWidth > 50) {
+            ret.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 23));
+        } else {
+            ret.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
         }
         return ret;
     }

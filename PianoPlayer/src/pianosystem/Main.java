@@ -2,32 +2,26 @@ package pianosystem;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.net.URL;
-import javax.swing.filechooser.FileSystemView;
 
 public class Main extends JFrame {
     private Piano p;
     private Player player;
     private static ControlBoard cb;
     private static Composition c;
-    private NoteView nv;
-    private boolean recording = false;
+    public static NoteView nv;
+    public static boolean recording = false;
     private static File selectedFile = new File("data\\input\\ode_to_joy.txt");
     private About aboutDialog = new About(this);
     private static Set<Character> pressed = new HashSet<Character>();
     private Recorder recorder = new Recorder(this);
     private boolean saving;
-    //private ArrayList<Character> pressedChars = new ArrayList<>();
+    public static boolean playing = false;
 
     private class WindowListener extends WindowAdapter {
         @Override
@@ -43,13 +37,13 @@ public class Main extends JFrame {
         setLocationRelativeTo(null);
         addMenus();
         addComponents();
-        //validate();
         addWindowListener(new WindowListener());
         setVisible(true);
     }
 
     public synchronized void startPlaying() {
         player.startPlaying();
+        playing = true;
     }
 
     public synchronized void pausePlaying() {
@@ -58,6 +52,8 @@ public class Main extends JFrame {
 
     public void stopPlaying() {
         player.stopPlaying();
+
+        nv.resetView();
     }
 
     private class KeyDispatcher implements KeyEventDispatcher {
@@ -71,10 +67,6 @@ public class Main extends JFrame {
                     int mid = Reader.getMidiMap().get(Reader.getNoteMap().get(e.getKeyChar()));
                     Recorder.currentBuffer.add(recorder.new RecEvent(mid, System.currentTimeMillis()));
                 }
-
-                //char played = e.getKeyChar();
-                //System.out.println(played);
-                //p.grabFromKeyboard(played);
             } else if (e.getID() == KeyEvent.KEY_RELEASED && !saving) {
                 System.out.println("SIZE " +Recorder.currentBuffer.size());
                 long length = 0;
@@ -103,10 +95,6 @@ public class Main extends JFrame {
                     nv.removeNote();
 
                     pressed.clear();
-                    //p.grabFromKeyboard(last, 300);
-
-                    //double time = System.currentTimeMillis();
-
                 } else {
                     length = 300;
                     for(Character c: pressed) {
@@ -128,13 +116,6 @@ public class Main extends JFrame {
                     }
                 }
                 p.resetColor();
-                //for(Character c: pressed) {
-                 //   pressed.remove(c);
-                //}
-                //pressed.remove(e.getKeyChar());
-
-                //p.grabFromKeyboard(played);
-                //System.out.println("released");
             } else if (e.getID() == KeyEvent.KEY_TYPED && !saving) {
                 System.out.println("typed " + e.getKeyChar());
             }
@@ -155,13 +136,13 @@ public class Main extends JFrame {
         JMenu file = new JMenu("File");
         JMenu view = new JMenu("View");
         JMenu help = new JMenu("Help");
-        JCheckBoxMenuItem showNotes = new JCheckBoxMenuItem("Key Assist", false);
+        JCheckBoxMenuItem keyAssist = new JCheckBoxMenuItem("Key Assist", false);
+        JCheckBoxMenuItem showNotes = new JCheckBoxMenuItem("Show Notes", false);
 
         mb.add(file);
         mb.add(view);
         mb.add(help);
 
-        // TODO: Add listeners
         // ===== FILE ==== //
         JMenuItem open = new JMenuItem("Open...");
         JMenuItem reset = new JMenuItem("Reset");
@@ -211,16 +192,37 @@ public class Main extends JFrame {
         });
 
         // ===== View ==== //
+        view.add(keyAssist);
         view.add(showNotes);
+        keyAssist.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                p.setDisplay(keyAssist.getState());
+            }
+        });
+
         showNotes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                p.setDisplay(showNotes.getState());
+                nv.setFormal(showNotes.getState());
+                nv.resetView();
             }
         });
+
         // ===== HELP ==== //
         JMenuItem docs = new JMenuItem("Documentation");
         JMenuItem about = new JMenuItem("About");
+
+        docs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URL("https://www.github.com/zivkovicmilos/PianoPlayer").toURI());
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+            }
+        });
 
         about.addActionListener(new ActionListener() {
             @Override
@@ -234,13 +236,12 @@ public class Main extends JFrame {
 
         // ICONS //
         try {
-            open.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\open.png"));
-            exit.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\close.png"));
-            docs.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\docs.png"));
-            about.setIcon(ControlBoard.setImage("D:\\FAKS\\POOP\\Projekat 2\\PianoPlayer\\imgs\\about.png"));
+            open.setIcon(ControlBoard.setImage("imgs\\open.png"));
+            exit.setIcon(ControlBoard.setImage("imgs\\close.png"));
+            docs.setIcon(ControlBoard.setImage("imgs\\docs.png"));
+            about.setIcon(ControlBoard.setImage("imgs\\about.png"));
 
-            Image icon = Toolkit.getDefaultToolkit().getImage("D:\\FAKS\\POOP\\Projekat " +
-                    "2\\PianoPlayer\\imgs\\logo512x512.png");
+            Image icon = Toolkit.getDefaultToolkit().getImage("imgs\\logo512x512.png");
             this.setIconImage(icon);
         } catch (Exception e) {}
 
@@ -249,18 +250,31 @@ public class Main extends JFrame {
 
     private void addComponents() {
         cb = new ControlBoard(this, recorder);
-        p = new Piano();
+        p = new Piano(recorder);
         p.setPreferredSize(new Dimension(getWidth(), 180));
         player = new Player(cb);
         nv = new NoteView();
+
         add(nv, BorderLayout.WEST);
         add(cb, BorderLayout.EAST);
         add(p, BorderLayout.SOUTH);
 
 
-
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new KeyDispatcher());
+
+        addComponentListener(new ComponentAdapter(){
+            public void componentResized(ComponentEvent e){
+                int width = 0;
+                if(getWidth() >= 1000) {
+                    nv.notifySizeChange(true);
+                } else {
+                    nv.notifySizeChange(false);
+                }
+                //System.out.println("MAIN FRAME " + getWidth());
+                //resetView();
+            }
+        });
     }
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -268,9 +282,7 @@ public class Main extends JFrame {
         Reader.initMaps(new File("data\\map.csv"));
         //r.printMaps();
         c = new Composition();
-        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\test.txt"));
+        c.addSymbols(Reader.getNoteMap(), new File("data\\input\\game_of_thrones.txt"));
         new Main();
-        System.out.println(System.currentTimeMillis());
-
     }
 }

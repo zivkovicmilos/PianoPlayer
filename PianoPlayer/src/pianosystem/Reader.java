@@ -80,6 +80,18 @@ public class Reader {
         return '0';
     }
 
+    public static char getChar(Integer num) {
+        String search = "";
+        for(Map.Entry<String, Integer> entry : midiMap.entrySet()) {
+            if (num.equals(entry.getValue())) {
+                search = entry.getKey();
+                break;
+            }
+        }
+        if (search.equals("")) return '0';
+        return getChar(search);
+    }
+
     public static Map<Character, String> getNoteMap() {
         return noteMap;
     }
