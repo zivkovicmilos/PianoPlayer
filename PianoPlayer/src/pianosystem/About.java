@@ -45,7 +45,6 @@ public class About extends JDialog {
         desc.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
 
         add(picLabel, BorderLayout.NORTH);
-
         add(desc, BorderLayout.SOUTH);
         setSize(420, 300);
         setLocationRelativeTo(parent);
