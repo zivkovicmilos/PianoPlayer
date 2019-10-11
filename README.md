@@ -28,10 +28,10 @@ The VirtualPiano data is loaded in via a regular text file. With a combination o
 ### Types of VirtualPiano symbols
 1. Blank character -> Pause with a duration of 1/8
 2. | -> Pause with a duration of 1/4
-3. /[abc/] (notes within square brackets) -> Notes that should be played together (a chord), with a duration of 1/4
-4. /[a b c/] (space in square brackets) -> Notes that should be played separately, with a duration of 1/8
+3. [abc] (notes within square brackets) -> Notes that should be played together (a chord), with a duration of 1/4
+4. [a b c] (space in square brackets) -> Notes that should be played separately, with a duration of 1/8
 5. Characters outside of brackets -> Notes that should be played with a duration of 1/4
 
 # Video demonstration of PianoPlayer
 The best way to truly understand how it works is to actually use it. Below is a video demonstrating some of its capabilities.
-[![See how it works](https://img.youtube.com/vi/Ymv5jWLHalI/maxresdefault.jpg)](https://www.youtube.com/watch?v=Ymv5jWLHalI)
+[![See how it works](PianoPlayer/imgs/github/yt.jpg)](https://www.youtube.com/watch?v=Ymv5jWLHalI)
