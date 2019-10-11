@@ -1,4 +1,4 @@
-![Banner](./imgs/github/banner.jpg)
+![Banner](PianoPlayer/imgs/github/banner.jpg)
 
 # Project Description
 The goal of the PianoPlayer project was to create a fully functioning piano player in Java, that has the following features:
@@ -12,13 +12,13 @@ The goal of the PianoPlayer project was to create a fully functioning piano play
 # The GUI
 The following pictures encapsulate the program's capabilities:
 ### Initial state
-![Initial state](./imgs/github/init.png)
+![Initial state](PianoPlayer/imgs/github/init.png)
 
 ### KeyAssist toggled
-![KeyAssist](./imgs/github/ka.png)
+![KeyAssist](PianoPlayer/imgs/github/ka.png)
 
 ### Display notes instead of keys
-![Notes instead of keys](./imgs/github/nik.png)
+![Notes instead of keys](PianoPlayer/imgs/github/nik.png)
 
 # Program Breakdown
 ## Data input
