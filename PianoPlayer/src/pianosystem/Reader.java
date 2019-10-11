@@ -13,6 +13,7 @@ public class Reader {
 
     /**
      * Reads the specified .csv file and saves the mappings of key -> note as well as note -> midiNum
+     *
      * @param file File containing the mappings
      * @return Map of Key -> Note pairs
      * @throws FileNotFoundException
@@ -26,7 +27,7 @@ public class Reader {
         mappings.forEach(mapping -> {
             Matcher matcher = pattern.matcher(mapping);
 
-            if(matcher.matches()) {
+            if (matcher.matches()) {
                 Character key = matcher.group(1).charAt(0);
                 String note = matcher.group(2);
                 Integer midiNum = Integer.parseInt(matcher.group(3));
@@ -36,7 +37,8 @@ public class Reader {
         });
         try {
             br.close();
-        } catch(IOException io) {}
+        } catch (IOException io) {
+        }
     }
 
 
@@ -46,7 +48,7 @@ public class Reader {
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(file));
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
 
             System.out.println("NOT FOUND");
         }
@@ -57,22 +59,22 @@ public class Reader {
         mappings.forEach(mapping -> {
             Matcher matcher = pattern.matcher(mapping);
 
-            if(matcher.matches()) {
+            if (matcher.matches()) {
                 int indx = Integer.parseInt(matcher.group(1));
                 String desc = matcher.group(2);
                 map.put(indx, desc);
             }
         });
-        //System.out.println(map.size());
         try {
             br.close();
-        } catch(IOException io) {}
+        } catch (IOException io) {
+        }
         return map;
     }
 
     // Finds the keyboard character for the note in form N?. and so on
     public static char getChar(String s) {
-        for(Map.Entry<Character, String> entry : noteMap.entrySet()) {
+        for (Map.Entry<Character, String> entry : noteMap.entrySet()) {
             if (s.equals(entry.getValue())) {
                 return entry.getKey();
             }
@@ -82,7 +84,7 @@ public class Reader {
 
     public static char getChar(Integer num) {
         String search = "";
-        for(Map.Entry<String, Integer> entry : midiMap.entrySet()) {
+        for (Map.Entry<String, Integer> entry : midiMap.entrySet()) {
             if (num.equals(entry.getValue())) {
                 search = entry.getKey();
                 break;
@@ -102,12 +104,12 @@ public class Reader {
 
     public void printMaps() {
         System.out.println("========== NOTE MAP ==========");
-        for(Map.Entry<Character, String> entry : noteMap.entrySet()) {
+        for (Map.Entry<Character, String> entry : noteMap.entrySet()) {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
 
         System.out.println("========== MIDI MAP ==========");
-        for(Map.Entry<String, Integer> entry : midiMap.entrySet()) {
+        for (Map.Entry<String, Integer> entry : midiMap.entrySet()) {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
     }

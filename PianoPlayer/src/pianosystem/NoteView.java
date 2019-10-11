@@ -9,7 +9,7 @@ public class NoteView extends JPanel implements Runnable {
     private ArrayList<MusicSymbol> displayedNotes = new ArrayList<>(); // List of currently displayed notes
     private ArrayList<Composition.Pair> symbolMap = Composition.getSymbolMap(); // Load in the symbolMap
     private GridBagConstraints cons;
-    private double MAX = 8/4;
+    private double MAX = 8 / 4;
     private double currDur = 0;
     private int currIndx = 0;
     private boolean formal = false;
@@ -21,7 +21,6 @@ public class NoteView extends JPanel implements Runnable {
 
     public NoteView() {
         setBorder(new EmptyBorder(0, 20, 10, 10));
-        //setBorder(BorderFactory.createLineBorder(Color.black));
         setLayout(new GridBagLayout());
         cons = new GridBagConstraints();
         initNotes();
@@ -36,7 +35,6 @@ public class NoteView extends JPanel implements Runnable {
         } else {
             quarterWidth = 50;
         }
-        //if(!Main.playing) resetView();
     }
 
     public void setFormal(boolean state) {
@@ -45,9 +43,9 @@ public class NoteView extends JPanel implements Runnable {
 
     public void run() {
         try {
-            while(!t.interrupted()) {
+            while (!Thread.interrupted()) {
                 synchronized (this) {
-                    while(!working) wait();
+                    while (!working) wait();
                     System.out.println("WORKING");
                 }
 
@@ -57,31 +55,30 @@ public class NoteView extends JPanel implements Runnable {
                 int numInChord = 0;
                 int playedCnt = 0; // number of already played notes in the chord
 
-                if(currentNote.hasNext()) {
+                if (currentNote.hasNext()) {
                     Note temp = currentNote;
-                    while(temp != null) {
-                        if(pressedChars.contains(temp.getCharDesc())) {
+                    while (temp != null) {
+                        if (pressedChars.contains(temp.getCharDesc())) {
                             temp.setPlayed(true);
                         }
                         numInChord++;
-                        if(temp.wasPlayed()) playedCnt++;
+                        if (temp.wasPlayed()) playedCnt++;
                         temp = temp.getNext();
                     }
-                    if(numInChord == playedCnt) {
+                    if (numInChord == playedCnt) {
                         // Remove the chord, add note(s) that last for 1/4
-                        // TODO FIX display / removal of chords
                         temp = currentNote;
-                        while(temp != null) {
+                        while (temp != null) {
                             temp.setPlayed(false);
                             temp = temp.getNext();
                         }
-                        currDur = currDur - (double)1/4;
+                        currDur = currDur - (double) 1 / 4;
                         displayedNotes.remove(0);
                         updateRequired = true;
                     } else {
                         // Not all of the chord keys were pressed at once, just individually
                         temp = currentNote;
-                        while(temp != null) {
+                        while (temp != null) {
                             temp.setPlayed(false);
                             temp = temp.getNext();
                         }
@@ -93,33 +90,34 @@ public class NoteView extends JPanel implements Runnable {
                         updateRequired = true;
                     }
                 }
-                if(updateRequired) fillSpace();
+                if (updateRequired) fillSpace();
                 working = false;
                 updateRequired = false;
                 repaint();
             }
-        } catch(InterruptedException e) {}
+        } catch (InterruptedException e) {
+        }
     }
 
     public synchronized void removeNote() {
-        if(t != null) {
+        if (t != null) {
             working = true;
             notifyAll();
         }
     }
 
     private void fillSpace() {
-        if(displayedNotes.size() == 0)  {
+        if (displayedNotes.size() == 0) {
             updateView();
             return;
         }
-        while(displayedNotes.get(0) instanceof Pause) {
+        while (displayedNotes.get(0) instanceof Pause) {
             try {
-                t.sleep(displayedNotes.get(0).getDuraton().toMilis());
+                Thread.sleep(displayedNotes.get(0).getDuraton().toMilis());
                 currDur -= displayedNotes.get(0).getDurationDouble();
                 displayedNotes.remove(0);
-                //initNotes(); // show pause getting deleted
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+            }
         }
 
         initNotes();
@@ -128,10 +126,10 @@ public class NoteView extends JPanel implements Runnable {
     public void initNotes() {
 
         int noteCnt = 1;
-        if(currIndx == symbolMap.size()-1) {
+        if (currIndx == symbolMap.size() - 1) {
             System.out.println("HERE");
         }
-        if(currIndx < symbolMap.size()) {
+        if (currIndx < symbolMap.size()) {
             while (!(currDur == MAX)) {
                 noteCnt = 1;
                 MusicSymbol ms = symbolMap.get(currIndx).ms;
@@ -141,7 +139,6 @@ public class NoteView extends JPanel implements Runnable {
                     if (temp.hasNext() && !temp.hasPrev()) {
                         Note tempTravers = temp.getNext();
                         while (tempTravers != null) {
-                            //currIndx++;
                             noteCnt++;
                             tempTravers = tempTravers.getNext();
                         }
@@ -149,11 +146,11 @@ public class NoteView extends JPanel implements Runnable {
 
                     if (temp.hasPrev()) continue;
                 }
-                if(currDur + ms.getDurationDouble() <= MAX) {
+                if (currDur + ms.getDurationDouble() <= MAX) {
                     displayedNotes.add(ms);
                     currDur += ms.getDurationDouble();
-                    currIndx+= noteCnt;
-                    if(currIndx == symbolMap.size()) break; // Reached the end
+                    currIndx += noteCnt;
+                    if (currIndx == symbolMap.size()) break; // Reached the end
                 } else {
                     break;
                 }
@@ -164,7 +161,7 @@ public class NoteView extends JPanel implements Runnable {
 
     private void updateView() {
         // Determine the maximum size for the section
-        if(displayedNotes.size() == 0) {
+        if (displayedNotes.size() == 0) {
             this.removeAll();
             this.revalidate();
             t = null;
@@ -172,28 +169,28 @@ public class NoteView extends JPanel implements Runnable {
         }
         int maxHeight = 1;
 
-        for(MusicSymbol ms : displayedNotes) {
+        for (MusicSymbol ms : displayedNotes) {
             if (ms instanceof Note) {
                 Note temp = (Note) ms;
                 int count = 0;
-                if(temp.hasNext() && !temp.hasPrev()) {
-                    while(temp != null) {
+                if (temp.hasNext() && !temp.hasPrev()) {
+                    while (temp != null) {
                         count++;
                         temp = temp.getNext();
                     }
                 }
-                maxHeight = (count>maxHeight)?count:maxHeight;
+                maxHeight = (count > maxHeight) ? count : maxHeight;
             }
         }
         this.removeAll(); // Clear the panel of elements
-        if(maxHeight == 1) {
+        if (maxHeight == 1) {
             cons.gridy = 0;
             cons.gridx = 0;
-            for(MusicSymbol ms : displayedNotes) {
-                if(ms instanceof Note) {
-                    add(getNoteLabel((Note)ms), cons);
+            for (MusicSymbol ms : displayedNotes) {
+                if (ms instanceof Note) {
+                    add(getNoteLabel((Note) ms), cons);
                 } else {
-                    add(getPauseLabel((Pause)ms), cons);
+                    add(getPauseLabel((Pause) ms), cons);
                 }
                 cons.gridx++;
             }
@@ -202,27 +199,27 @@ public class NoteView extends JPanel implements Runnable {
             cons.gridx = 0;
 
             int yNonChord = maxHeight / 2;
-            for(MusicSymbol ms : displayedNotes) {
+            for (MusicSymbol ms : displayedNotes) {
                 if (ms instanceof Note) {
                     Note temp = (Note) ms;
-                    if(temp.hasNext() && !temp.hasPrev()) {
+                    if (temp.hasNext() && !temp.hasPrev()) {
                         cons.gridy = 0;
-                        while(temp != null) {
-                            add(getNoteLabel((Note)temp), cons);
+                        while (temp != null) {
+                            add(getNoteLabel(temp), cons);
                             cons.gridy++;
                             temp = temp.getNext();
                         }
                         cons.gridx++;
-                    } else if(!temp.hasPrev()){
+                    } else if (!temp.hasPrev()) {
                         // Not a chord
                         cons.gridy = yNonChord;
-                        add(getNoteLabel((Note)temp), cons);
+                        add(getNoteLabel(temp), cons);
                         cons.gridx++;
                     }
                 } else {
                     // Pause
                     cons.gridy = yNonChord;
-                    add(getPauseLabel((Pause)ms), cons);
+                    add(getPauseLabel((Pause) ms), cons);
                     cons.gridx++;
                 }
             }
@@ -235,10 +232,10 @@ public class NoteView extends JPanel implements Runnable {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         int posx = 20;
-        int width = getWidth()/8;
-        for(int i = 0; i <9; i++) {
-            g.fillRect(posx, getHeight()-160, 3, 30);
-            posx+=width;
+        int width = getWidth() / 8;
+        for (int i = 0; i < 9; i++) {
+            g.fillRect(posx, getHeight() - 160, 3, 30);
+            posx += width;
         }
     }
 
@@ -259,20 +256,20 @@ public class NoteView extends JPanel implements Runnable {
 
         ret.setBackground(p.getColor());
         ret.setOpaque(true);
-        if(p.getDuraton().isQuarter()) {
-            ret.setPreferredSize(new Dimension(quarterWidth, quarterWidth/2));
+        if (p.getDuraton().isQuarter()) {
+            ret.setPreferredSize(new Dimension(quarterWidth, quarterWidth / 2));
         } else {
-            ret.setPreferredSize(new Dimension(quarterWidth/2, quarterWidth/2));
+            ret.setPreferredSize(new Dimension(quarterWidth / 2, quarterWidth / 2));
         }
         return ret;
     }
 
     public JLabel getNoteLabel(Note n) {
         JLabel ret;
-        if(formal) { // Display note as N#n
+        if (formal) { // Display note as N#n
             ret = new JLabel(n.getDesc(), SwingConstants.CENTER);
         } else {
-            ret = new JLabel(Reader.getChar(n.getDesc().toUpperCase())+"", SwingConstants.CENTER);
+            ret = new JLabel(Reader.getChar(n.getDesc().toUpperCase()) + "", SwingConstants.CENTER);
         }
 
         ret.setBackground(n.getColor());
@@ -280,13 +277,13 @@ public class NoteView extends JPanel implements Runnable {
         ret.setForeground(Color.BLACK);
         ret.setOpaque(true);
 
-        if(n.getDuraton().isQuarter()) {
-            ret.setPreferredSize(new Dimension(quarterWidth, quarterWidth/2));
+        if (n.getDuraton().isQuarter()) {
+            ret.setPreferredSize(new Dimension(quarterWidth, quarterWidth / 2));
         } else {
-            ret.setPreferredSize(new Dimension(quarterWidth/2, quarterWidth/2));
+            ret.setPreferredSize(new Dimension(quarterWidth / 2, quarterWidth / 2));
         }
 
-        if(quarterWidth > 50) {
+        if (quarterWidth > 50) {
             ret.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 23));
         } else {
             ret.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
@@ -295,17 +292,15 @@ public class NoteView extends JPanel implements Runnable {
     }
 
     void addComponents() {
-        //cons.fill = GridBagConstraints.HORIZONTAL;
         cons.gridx = 0;
         cons.gridy = 0;
-        //add(new Button("H1"), cons);
+
         cons.gridy = 1;
-        //add(new Button("H2"), cons);
+
         cons.gridy = 2;
-        //add(new Button("H3"), cons);
+
         cons.gridx = 1;
         cons.gridy = 1;
-        //add(getNoteLabel("t"), cons);
     }
 
 }

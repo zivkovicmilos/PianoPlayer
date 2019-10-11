@@ -48,7 +48,7 @@ public class Recorder {
         }
 
         public String toString() {
-            return "Note "+ note + " pr "+ timeOn + ", rl " + timeOff + " | " + (timeOff-timeOn);
+            return "Note " + note + " pr " + timeOn + ", rl " + timeOff + " | " + (timeOff - timeOn);
         }
     }
 
@@ -57,20 +57,19 @@ public class Recorder {
     public static ArrayList<RecEvent> playedNotes = new ArrayList<>();
 
     public static void transfer() {
-        for(RecEvent re : currentBuffer) {
+        for (RecEvent re : currentBuffer) {
             playedNotes.add(re);
         }
         currentBuffer.clear();
     }
 
     private void printRecEvents() {
-        for(RecEvent re : playedNotes) {
+        for (RecEvent re : playedNotes) {
             System.out.println(re);
         }
     }
 
     public void generateTrack() {
-        //duration = ms->getDuration() == Duration(1, 4) ? 2 : 1;
         int actionTime = 0;
         int chordEndTime = 0;
         boolean wasChord = false;
@@ -80,36 +79,36 @@ public class Recorder {
         //144 -> Note On Event
         //128 -> Note Off Event
         //RecEvent e : playedNotes
-        for(int i = 0; i < playedNotes.size(); i++) {
+        for (int i = 0; i < playedNotes.size(); i++) {
             RecEvent e = playedNotes.get(i);
             // Determine pause length in multiples of 150ms
-            if(lastOff != 0 && !inChord) {
+            if (lastOff != 0 && !inChord) {
                 int pause = (int) ((e.timeOn - lastOff) / 300);
                 if (pause == 0) {
-                    actionTime = actionTime + tpq/2;
+                    actionTime = actionTime + tpq / 2;
                 } else {
-                    actionTime = actionTime + tpq/2*pause;
+                    actionTime = actionTime + tpq / 2 * pause;
                 }
             }
 
-            if(e.chord) {
+            if (e.chord) {
                 //actionStart and actionEnd times don't change for chords
                 track.add(makeEvent(144, e.note, actionTime));
-                track.add(makeEvent(128, e.note, actionTime+tpq/2));
+                track.add(makeEvent(128, e.note, actionTime + tpq / 2));
                 wasChord = true;
                 inChord = true;
                 if (e.lastInChord) {
                     lastOff = e.timeOff;
-                    actionTime += tpq/2+1;
+                    actionTime += tpq / 2 + 1;
                     inChord = false;
                 }
             } else {
-                if(wasChord) {
+                if (wasChord) {
                     actionTime += tpq;
                     wasChord = false;
                 }
                 track.add(makeEvent(144, e.note, actionTime));
-                actionTime += tpq/2;
+                actionTime += tpq / 2;
                 track.add(makeEvent(128, e.note, actionTime));
                 lastOff = e.timeOff;
             }
@@ -124,8 +123,8 @@ public class Recorder {
             ShortMessage a = new ShortMessage();
             a.setMessage(code, 1, note, 100);
             event = new MidiEvent(a, actionTime);
+        } catch (Exception ex) {
         }
-        catch (Exception ex) {}
         return event;
     }
 
@@ -133,26 +132,26 @@ public class Recorder {
         long lastOff = 0;
         boolean inChord = false;
         sb = new StringBuilder();
-        for(int i = 0; i<playedNotes.size(); i++) {
+        for (int i = 0; i < playedNotes.size(); i++) {
             RecEvent re = playedNotes.get(i);
 
-            if(lastOff != 0 && !inChord) {
+            if (lastOff != 0 && !inChord) {
                 int pause = (int) ((re.timeOn - lastOff) / 300);
-                if(pause > 0) {
+                if (pause > 0) {
                     int longPause = pause / 2;
-                    for(int j = 0; j<longPause; j++) {
+                    for (int j = 0; j < longPause; j++) {
                         sb.append(" ");
                         sb.append("|");
                         sb.append(" ");
                     }
-                    for(int j = 0; j<pause%2; j++) {
+                    for (int j = 0; j < pause % 2; j++) {
                         sb.append(" ");
                     }
                 }
             }
 
-            if(re.chord) {
-                if(!inChord) sb.append("["); // Mark the beginning of the chord sequence
+            if (re.chord) {
+                if (!inChord) sb.append("["); // Mark the beginning of the chord sequence
                 sb.append(Reader.getChar(re.note));
                 inChord = true;
                 if (re.lastInChord) {
@@ -188,10 +187,8 @@ public class Recorder {
 
     public void stopRec(boolean txt) {
         try {
-            //sequencer.stopRecording();
             // SAVE THE FILE //
             parent.notifySaving(true);
-            //File savedFile = new File("");
             File workingDirectory = new File(System.getProperty("user.dir"));
 
             JFileChooser save = new JFileChooser() {
@@ -205,14 +202,14 @@ public class Recorder {
             save.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
-                        savedFile = ((JFileChooser)e.getSource()).getSelectedFile();
+                        savedFile = ((JFileChooser) e.getSource()).getSelectedFile();
                         System.out.println(savedFile.getAbsolutePath());
                     }
                 }
             });
             save.setCurrentDirectory(workingDirectory);
             save.showSaveDialog(parent);
-            if(!txt) {
+            if (!txt) {
                 int[] allowedTypes = MidiSystem.getMidiFileTypes(sequence);
                 MidiSystem.write(sequence, allowedTypes[0], savedFile);
             } else {

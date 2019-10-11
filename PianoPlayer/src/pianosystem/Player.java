@@ -1,6 +1,5 @@
 package pianosystem;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ public class Player implements Runnable {
     }
 
     public synchronized void startPlaying() {
-        if(theEnd) {
+        if (theEnd) {
             playing = true;
             midiMap = Reader.getMidiMap();
             symbolMap = Composition.getSymbolMap();
@@ -44,7 +43,7 @@ public class Player implements Runnable {
         playing = false;
         currentNote = 0;
         theEnd = true;
-        if(t != null)  {
+        if (t != null) {
             t.interrupt();
             System.out.println("INTERRUPTED");
         }
@@ -53,9 +52,9 @@ public class Player implements Runnable {
     @Override
     public void run() {
         try {
-            while(!t.interrupted()) {
+            while (!Thread.interrupted()) {
                 synchronized (this) {
-                    while(!playing) {
+                    while (!playing) {
                         System.out.println("WAITING " + currentNote);
                         wait();
                     }
@@ -68,12 +67,11 @@ public class Player implements Runnable {
 
                     if (ms instanceof Note) {
                         Note note = (Note) ms;
-                        System.out.println(ms.getDesc()); // TODO Remove
 
                         long length = 0;
                         ArrayList<Integer> arr = new ArrayList<Integer>();
                         // Just the first note in the chord
-                        if(note.hasNext() && !note.hasPrev()) {
+                        if (note.hasNext() && !note.hasPrev()) {
                             Note temp = (Note) ms;
                             // Update the NoteView
                             NoteView.pressedChars.clear();
@@ -88,23 +86,18 @@ public class Player implements Runnable {
                                 temp = temp.getNext();
                             }
                             offSet--;
-                            //length = ms.getDuraton().toMilis()/2;
                             System.out.println("SIZE " + keys.size());
-                            for(Key k : keys) {
+                            for (Key k : keys) {
                                 k.setColor(Piano.deepCarmine);
                             }
-                            // TODO cekati na poslednju?
                             length = 300; // 1/4
                             System.out.println("PLAYING " + arr.size() + " NOTES");
-                            //for(Integer oneNote : arr) {
-                            //    Piano.play(oneNote, 300, false);
-                           // }
                             Piano.play(arr, length);
-                        } else if(!note.hasPrev() && !note.hasNext()){
+                        } else if (!note.hasPrev() && !note.hasNext()) {
 
                             int midiNum = midiMap.get(ms.getDesc().toUpperCase());
                             keys.add(Piano.getKeyPlayed(midiNum));
-                            for(Key k : keys) {
+                            for (Key k : keys) {
                                 k.setColor(Piano.deepCarmine);
                             }
 
@@ -115,14 +108,13 @@ public class Player implements Runnable {
                             // Update the NoteView
                             NoteView.pressedChars.clear();
                             NoteView.pressedChars.add(Reader.getChar(note.getDesc().toUpperCase()));
-                            //Main.nv.removeNote();
                         }
                     } else {
                         Piano.play(-1, ms.getDuraton().toMilis(), true);
                     }
 
                     if (ms instanceof Note) {
-                        for(Key k : keys) {
+                        for (Key k : keys) {
                             k.setDefaultColor();
                         }
                     }
@@ -142,6 +134,7 @@ public class Player implements Runnable {
                     Main.nv.resetView();
                 }
             }
-        } catch(InterruptedException e) {}
+        } catch (InterruptedException e) {
+        }
     }
 }

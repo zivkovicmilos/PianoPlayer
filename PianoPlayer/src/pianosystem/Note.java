@@ -1,12 +1,12 @@
 package pianosystem;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class Note extends MusicSymbol {
-    public enum Pitch {C, D, E, F, G, A, B};
+    public enum Pitch {C, D, E, F, G, A, B}
 
-    private Color lightGreen = new Color(125,206,130);
-    private Color lightRed = new Color(255,75,48);
+    private Color lightGreen = new Color(125, 206, 130);
+    private Color lightRed = new Color(255, 75, 48);
 
     private Note next;
     private Note prev;
@@ -59,17 +59,17 @@ public class Note extends MusicSymbol {
     @Override
     public String getDesc() {
         boolean uppcase = false;
-        if(d.isQuarter()) {
+        if (d.isQuarter()) {
             uppcase = true;
         }
         String desc = "";
-        if(uppcase) {
-            desc+=p.toString();
+        if (uppcase) {
+            desc += p.toString();
         } else {
-            desc+=p.toString().toLowerCase();
+            desc += p.toString().toLowerCase();
         }
-        if(sharp) desc+="#";
-        desc+=octave;
+        if (sharp) desc += "#";
+        desc += octave;
         return desc;
     }
 
@@ -89,16 +89,31 @@ public class Note extends MusicSymbol {
     public static Note.Pitch getPitch(char c) {
         Pitch ret = null;
         switch (c) {
-            case 'C': ret = Note.Pitch.C; break;
-            case 'D': ret = Note.Pitch.D; break;
-            case 'E': ret = Note.Pitch.E; break;
-            case 'F': ret = Note.Pitch.F; break;
-            case 'G': ret = Note.Pitch.G; break;
-            case 'A': ret = Note.Pitch.A; break;
-            case 'B': ret = Note.Pitch.B; break;
+            case 'C':
+                ret = Note.Pitch.C;
+                break;
+            case 'D':
+                ret = Note.Pitch.D;
+                break;
+            case 'E':
+                ret = Note.Pitch.E;
+                break;
+            case 'F':
+                ret = Note.Pitch.F;
+                break;
+            case 'G':
+                ret = Note.Pitch.G;
+                break;
+            case 'A':
+                ret = Note.Pitch.A;
+                break;
+            case 'B':
+                ret = Note.Pitch.B;
+                break;
             default:
-                System.out.println("Bad pitch"); break;
-        };
+                System.out.println("Bad pitch");
+                break;
+        }
         return ret;
     }
 

@@ -9,12 +9,12 @@ public class ControlBoard extends JPanel {
     private JLabel currentPiece = new JLabel("game_of_thrones.txt");
     private JLabel aboveText;
     private JButton play, pause, stop, record, save, saveTxt;
-    private Color bgColor = new Color(229,227,233);
+    private Color bgColor = new Color(229, 227, 233);
     private Main parent;
     private Recorder rec;
 
     public ControlBoard(Main parent, Recorder rec) {
-        super(new BorderLayout()); // TODO: Specify layout
+        super(new BorderLayout());
         this.parent = parent;
         addLabels();
         addButtons();
@@ -25,10 +25,9 @@ public class ControlBoard extends JPanel {
     public void addLabels() {
         aboveText = new JLabel();
         aboveText.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
-        aboveText.setText("<html><div style=\"margin: 5px;\">"+"Currently Playing: <br/>" + currentPiece.getText()+ "</div" +
+        aboveText.setText("<html><div style=\"margin: 5px;\">" + "Currently Playing: <br/>" + currentPiece.getText() + "</div" +
                 "></html>");
         add(aboveText, BorderLayout.NORTH);
-        //add(currentPiece, BorderLayout.NORTH);
     }
 
     public void setCurrent(String current) {
@@ -36,13 +35,13 @@ public class ControlBoard extends JPanel {
     }
 
     public void changePiece(String name) {
-        aboveText.setText("<html><div style=\"margin: 5px;\">"+"Currently Playing: <br/>" + name+ "</div" +
+        aboveText.setText("<html><div style=\"margin: 5px;\">" + "Currently Playing: <br/>" + name + "</div" +
                 "></html>");
     }
 
     public static ImageIcon setImage(String path) {
         ImageIcon img = new ImageIcon(path);
-        return new ImageIcon(img.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+        return new ImageIcon(img.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
     }
 
     public void addButtons() {

@@ -1,13 +1,13 @@
 package pianosystem;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-import javax.swing.*;
-import java.net.URL;
 
 public class Main extends JFrame {
     private Piano p;
@@ -59,7 +59,7 @@ public class Main extends JFrame {
     private class KeyDispatcher implements KeyEventDispatcher {
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
-            if(e.getKeyCode() == KeyEvent.VK_SHIFT) return false;
+            if (e.getKeyCode() == KeyEvent.VK_SHIFT) return false;
             if (e.getID() == KeyEvent.KEY_PRESSED && !saving) {
                 pressed.add(e.getKeyChar());
                 p.setColor(e.getKeyChar());
@@ -68,18 +68,18 @@ public class Main extends JFrame {
                     Recorder.currentBuffer.add(recorder.new RecEvent(mid, System.currentTimeMillis()));
                 }
             } else if (e.getID() == KeyEvent.KEY_RELEASED && !saving) {
-                System.out.println("SIZE " +Recorder.currentBuffer.size());
+                System.out.println("SIZE " + Recorder.currentBuffer.size());
                 long length = 0;
                 if (pressed.size() > 1) {
                     length = 300;
-                    Character last = (Character) pressed.toArray()[pressed.size()-1];
+                    Character last = (Character) pressed.toArray()[pressed.size() - 1];
 
-                    if(recording) {
-                        for(Recorder.RecEvent re : Recorder.currentBuffer) {
+                    if (recording) {
+                        for (Recorder.RecEvent re : Recorder.currentBuffer) {
                             re.setChord(true);
 
                             re.setTimeOff(System.currentTimeMillis());
-                            if(re == Recorder.currentBuffer.get(Recorder.currentBuffer.size()-1)) {
+                            if (re == Recorder.currentBuffer.get(Recorder.currentBuffer.size() - 1)) {
                                 re.setLastInChord(true);
                             }
                         }
@@ -87,7 +87,7 @@ public class Main extends JFrame {
                     }
 
                     NoteView.pressedChars.clear();
-                    for(Character c: pressed) {
+                    for (Character c : pressed) {
                         p.grabFromKeyboard(c, length);
                         NoteView.pressedChars.add(c);
                         System.out.println(e.getKeyChar());
@@ -97,7 +97,7 @@ public class Main extends JFrame {
                     pressed.clear();
                 } else {
                     length = 300;
-                    for(Character c: pressed) {
+                    for (Character c : pressed) {
                         p.grabFromKeyboard(c, length);
 
                         NoteView.pressedChars.clear();
@@ -108,8 +108,8 @@ public class Main extends JFrame {
                     }
                     nv.removeNote(); // Update NoteView
 
-                    if(recording) {
-                        for(Recorder.RecEvent re : Recorder.currentBuffer) {
+                    if (recording) {
+                        for (Recorder.RecEvent re : Recorder.currentBuffer) {
                             re.setTimeOff(System.currentTimeMillis());
                         }
                         Recorder.transfer();
@@ -162,7 +162,6 @@ public class Main extends JFrame {
                 JFileChooser jfc = new JFileChooser();
                 jfc.setCurrentDirectory(workingDirectory);
                 int returnValue = jfc.showOpenDialog(null);
-                // int returnValue = jfc.showSaveDialog(null);
 
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     selectedFile = jfc.getSelectedFile();
@@ -243,7 +242,8 @@ public class Main extends JFrame {
 
             Image icon = Toolkit.getDefaultToolkit().getImage("imgs\\logo512x512.png");
             this.setIconImage(icon);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         setJMenuBar(mb);
     }
@@ -263,16 +263,14 @@ public class Main extends JFrame {
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new KeyDispatcher());
 
-        addComponentListener(new ComponentAdapter(){
-            public void componentResized(ComponentEvent e){
+        addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent e) {
                 int width = 0;
-                if(getWidth() >= 1000) {
+                if (getWidth() >= 1000) {
                     nv.notifySizeChange(true);
                 } else {
                     nv.notifySizeChange(false);
                 }
-                //System.out.println("MAIN FRAME " + getWidth());
-                //resetView();
             }
         });
     }
@@ -280,7 +278,6 @@ public class Main extends JFrame {
     public static void main(String[] args) throws FileNotFoundException {
         Reader r = new Reader();
         Reader.initMaps(new File("data\\map.csv"));
-        //r.printMaps();
         c = new Composition();
         c.addSymbols(Reader.getNoteMap(), new File("data\\input\\game_of_thrones.txt"));
         new Main();

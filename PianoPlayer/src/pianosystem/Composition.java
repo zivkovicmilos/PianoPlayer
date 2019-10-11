@@ -17,6 +17,7 @@ public class Composition {
         MusicSymbol ms;
         char charDesc;
         Integer pos;
+
         public Pair(MusicSymbol ms, Integer pos, char charDesc) {
             this.ms = ms;
             this.pos = pos;
@@ -31,8 +32,8 @@ public class Composition {
             StringBuilder sb = new StringBuilder();
             if (ms instanceof Note) {
                 Note temp = (Note) ms;
-                if(temp.hasNext()) {
-                    while(temp != null) {
+                if (temp.hasNext()) {
+                    while (temp != null) {
                         sb.append(temp.getDesc() + ", ");
                         temp = temp.getNext();
                     }
@@ -63,7 +64,7 @@ public class Composition {
         try {
             br = new BufferedReader(new FileReader(file));
             lines = br.lines();
-        } catch(FileNotFoundException fnf) {
+        } catch (FileNotFoundException fnf) {
             System.out.println("File not found");
             return;
         }
@@ -76,9 +77,9 @@ public class Composition {
         lines.forEach(line -> {
             base = line.length();
             MusicSymbol temp = null;
-            for(int i =0 ; i<4;i++) {
+            for (int i = 0; i < 4; i++) {
                 String query = regexQueries.get(i);
-                Pattern pattern  = Pattern.compile(query);
+                Pattern pattern = Pattern.compile(query);
                 Matcher matcher = pattern.matcher(line);
                 boolean first = true;
                 int num = 0;
@@ -86,32 +87,30 @@ public class Composition {
                 int oldLength = 0;
                 Note oldNote;
                 String workingStr;
-                while(matcher.find()) {
+                while (matcher.find()) {
                     workingStr = (i == 2) ? matcher.group(1) : matcher.group();
                     pos = (i == 2) ? matcher.start(1) : matcher.start();
                     oldNote = null;
-                    if(first) {
+                    if (first) {
                         num = oldBase + pos;
                         first = false;
                     } else {
                         num = pos;
-                        //num += (i == 2 ? -1 : 0);
                     }
 
                     int length = workingStr.length();
-                    if(length > 1) {
+                    if (length > 1) {
                         char[] charArr = workingStr.toCharArray();
                         int offset = 0;
                         boolean connected = false;
-                        for(int j = 0; j< length;j++) {
+                        for (int j = 0; j < length; j++) {
                             Duration d = new Duration();
                             if (i == 2) {
                                 // Capturing inside the brackets [ ]
                                 if (workingStr.contains(" ")) {
                                     // There is a space between the letters
                                     d.changeDuration(1, 8); // For all symbols
-                                }
-                                else {
+                                } else {
                                     d.changeDuration(1, 4);
                                     connected = true;
                                 }
@@ -134,10 +133,9 @@ public class Composition {
                             pitch = Note.getPitch(cPitch);
 
                             if ((noteMap.get(note)).charAt(1) != '#') {
-                                octave = (int)(noteMap.get(note).charAt(1)) - '0';
-                            }
-                            else {
-                                octave = (int)(noteMap.get(note).charAt(2)) - '0';
+                                octave = (int) (noteMap.get(note).charAt(1)) - '0';
+                            } else {
+                                octave = (int) (noteMap.get(note).charAt(2)) - '0';
                                 isSharp = true;
                             }
 
@@ -146,23 +144,21 @@ public class Composition {
                             symbolMap.add(new Pair(temp, offset + num, note));
 
                             if (connected && (oldNote != null)) {
-                                oldNote.addNext((Note)temp);
-                                Note tmpN = (Note)temp;
+                                oldNote.addNext((Note) temp);
+                                Note tmpN = (Note) temp;
                                 tmpN.addPrev(oldNote);
                             }
 
                             offset++;
-                            oldNote = (Note)temp;
+                            oldNote = (Note) temp;
                         }
 
                     } else {
                         if (workingStr.charAt(0) == ' ') {
                             temp = new Pause(new Duration(1, 8));
-                        }
-                        else if (workingStr.charAt(0) == '|') {
+                        } else if (workingStr.charAt(0) == '|') {
                             temp = new Pause(new Duration(1, 4));
-                        }
-                        else {
+                        } else {
                             Note.Pitch pitch;
                             int octave;
                             boolean isSharp = false;
@@ -171,11 +167,10 @@ public class Composition {
                             pitch = Note.getPitch(cPitch);
 
                             if (noteMap.get(workingStr.charAt(0)).charAt(1) != '#') {
-                                octave = (int)(noteMap.get(workingStr.charAt(0)).charAt(1)) - 48;
+                                octave = (int) (noteMap.get(workingStr.charAt(0)).charAt(1)) - 48;
 
-                            }
-                            else {
-                                octave = (int)(noteMap.get(workingStr.charAt(0)).charAt(2)) - 48;
+                            } else {
+                                octave = (int) (noteMap.get(workingStr.charAt(0)).charAt(2)) - 48;
                                 isSharp = true;
                             }
 
@@ -193,10 +188,10 @@ public class Composition {
             return p1.pos.compareTo(p2.pos);
         });
 
-        for(Pair p : symbolMap) {
-          System.out.println(p);
+        for (Pair p : symbolMap) {
+            System.out.println(p);
         }
-       }
+    }
 
     public static ArrayList<Pair> getSymbolMap() {
         return symbolMap;

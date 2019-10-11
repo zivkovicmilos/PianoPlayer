@@ -5,8 +5,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class BlackKey extends JButton implements Key {
@@ -16,11 +14,11 @@ public class BlackKey extends JButton implements Key {
     private int id = cnt++;
     private static int cnt = 0;
     private int offsWidth = 0;
-    private Color richBlack = new Color(2,17,27);
+    private Color richBlack = new Color(2, 17, 27);
 
     public void reposition(Dimension d) {
-        int offs = d.width % 2 >0?d.width/2+1:d.width/2;
-        offsWidth = (int)((d.width*0.826) % 2 > 0? (d.width*0.826)+1:(d.width*0.826));
+        int offs = d.width % 2 > 0 ? d.width / 2 + 1 : d.width / 2;
+        offsWidth = (int) ((d.width * 0.826) % 2 > 0 ? (d.width * 0.826) + 1 : (d.width * 0.826));
         setLocation(startingPos * d.width + offs, 0);
         setSize(offsWidth, d.height);
     }
@@ -32,7 +30,7 @@ public class BlackKey extends JButton implements Key {
 
     public BlackKey(int indx) {
         midiNote = 37 + 2 * indx + (indx + 3) / 5 + indx / 5;
-        System.out.println("BLACK KEY #" + indx +" -> " +midiNote);
+        System.out.println("BLACK KEY #" + indx + " -> " + midiNote);
         setBackground(richBlack);
         setMinimumSize(new Dimension(19, 80));
 
@@ -58,7 +56,7 @@ public class BlackKey extends JButton implements Key {
         if (show) {
             setForeground(Color.WHITE);
             setMargin(new Insets(0, 0, 0, 0));
-            int size = offsWidth ==0?10:offsWidth*10/19;
+            int size = offsWidth == 0 ? 10 : offsWidth * 10 / 19;
             setFont(new Font(Font.SANS_SERIF, Font.BOLD, size));
             setBorder(null);
             setText(getDescr());
@@ -82,7 +80,7 @@ public class BlackKey extends JButton implements Key {
     }
 
     private String getDescr() {
-        return ""+getChar();
+        return "" + getChar();
     }
 
     public char getChar() {

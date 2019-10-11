@@ -19,7 +19,7 @@ public class Duration {
 
     @Override
     public String toString() {
-        return numerator +"/"+denominator;
+        return numerator + "/" + denominator;
     }
 
     public boolean isQuarter() {
@@ -27,7 +27,7 @@ public class Duration {
     }
 
     public long toMilis() {
-        return denominator==4? 300:150; //150:75
+        return denominator == 4 ? 300 : 150;
     }
 
     public static boolean equals(Duration d1, Duration d2) {
