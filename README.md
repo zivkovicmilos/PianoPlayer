@@ -12,13 +12,13 @@ The goal of the PianoPlayer project was to create a fully functioning piano play
 # The GUI
 The following pictures encapsulate the program's capabilities:
 ### Initial state
-![Initial state](PianoPlayer/imgs/github/init.png)
+![Initial state](PianoPlayer/imgs/github/init.PNG)
 
 ### KeyAssist toggled
-![KeyAssist](PianoPlayer/imgs/github/ka.png)
+![KeyAssist](PianoPlayer/imgs/github/ka.PNG)
 
 ### Display notes instead of keys
-![Notes instead of keys](PianoPlayer/imgs/github/nik.png)
+![Notes instead of keys](PianoPlayer/imgs/github/nik.PNG)
 
 # Program Breakdown
 ## Data input
