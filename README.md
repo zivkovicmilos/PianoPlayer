@@ -10,6 +10,11 @@ The goal of the PianoPlayer project was to create a fully functioning piano play
 6. Export the recorded composition as a .TXT (VirutalPiano format) or .MIDI
 
 # The GUI
+### Visual explanation
+* The black bars represent a 1/4 tick
+* Red is used to mark a 1/4 tick, while green is used for a 1/8 tick
+* Pauses are presented with either a darker red, or darker green color
+
 The following pictures encapsulate the program's capabilities:
 ### Initial state
 ![Initial state](PianoPlayer/imgs/github/init.PNG)
