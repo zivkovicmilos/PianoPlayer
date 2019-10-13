@@ -40,4 +40,4 @@ The VirtualPiano data is loaded in via a regular text file. With a combination o
 # Video demonstration of PianoPlayer
 The best way to truly understand how it works is to actually use it.
 Below is a video demonstrating some of its capabilities.
-[![See how it works](PianoPlayer/imgs/github/yt.jpg)](https://www.youtube.com/watch?v=Ymv5jWLHalI)
+[![See how it works](PianoPlayer/imgs/github/yt.jpg)](https://youtu.be/OBtAoH-4khQ)
